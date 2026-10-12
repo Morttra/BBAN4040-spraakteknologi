@@ -1,0 +1,36 @@
+# Package metadata and dependencies; install with `pip install -e ".[dev]"` so scripts and notebooks can import norrag.
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "norrag"
+version = "0.1.0"
+description = "Gemma 3 vs Borealis vs RAG over Norwegian Wikipedia on NRK-Quiz-QA (BBAN4040, NTNU)."
+requires-python = ">=3.12"
+# Versions get pinned once the environment is working end to end.
+dependencies = [
+    "pandas",
+    "numpy",
+    "pyyaml",
+    "python-dotenv",
+    "tqdm",
+    "datasets",
+    "scikit-learn",
+    "bm25s",
+    "PyStemmer",
+    "sentence-transformers",
+    "torch",
+    "transformers>=4.50",
+    "accelerate",
+    "openai",
+    "matplotlib",
+    "jupyter",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

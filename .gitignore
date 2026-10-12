@@ -218,3 +218,19 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- BBAN4040 project ---
+# macOS
+.DS_Store
+
+# Downloaded datasets, the processed corpus and search indexes are large and regenerable.
+data/*
+!data/README.md
+
+# Per-question experiment logs are large and regenerable; tables/ and figures/ are committed.
+results/raw/
+
+# Model weights and caches never belong in the repo.
+*.safetensors
+*.gguf
+*.bin
