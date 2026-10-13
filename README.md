@@ -24,7 +24,7 @@ We compare how well small language models answer questions about Norwegian histo
 │   ├── annotation.py            Evaluation layer 1: blind human annotation sheets
 │   ├── judge.py                 Evaluation layer 2: LLM judge
 │   └── metrics.py               Accuracy, hit@k, MRR@k, kappa, error breakdown
-├── scripts/                     Long-running pipeline steps, run in order 01 → 07
+├── scripts/                     Long-running pipeline steps, run in order 01 → 08
 ├── notebooks/
 │   ├── 00_main.ipynb            MAIN NOTEBOOK: all results in the report
 │   ├── 01_data-exploration.ipynb
@@ -34,7 +34,53 @@ We compare how well small language models answer questions about Norwegian histo
 ├── annotations/                 Human relevance labels and guidelines (committed)
 ├── results/                     raw/ logs (git-ignored), tables/ and figures/ (committed)
 ├── tests/                       Unit tests (pytest)
-└── docs/                        Decision log, AI-use log and Git cheatsheet
+└── docs/                        Architecture guide, decision log, AI-use log and Git cheatsheet
+```
+
+## How the pipeline fits together
+
+Blue boxes are scripts you run, grey shapes are files they write, green boxes are notebooks and the hexagon is manual work. Each script reads what the earlier ones wrote, so they run in order and can be rerun one at a time. [docs/architecture.md](docs/architecture.md) explains every step, what each file does and the order to build them in.
+
+```mermaid
+flowchart TD
+    NRK[("NRK-Quiz-QA<br/>Hugging Face")]
+    WIKI[("Norwegian Wikipedia, March 2019<br/>Språkbanken")]
+
+    NRK --> S01
+    WIKI --> S01
+    S01["01_prepare_data.py"] --> Q[/"questions.parquet"/]
+    S01 --> A[/"articles.parquet"/]
+    A --> S02["02_chunk_corpus.py"] --> C[/"chunks.parquet"/]
+    C --> S03["03_build_indexes.py"] --> I[/"indexes: TF-IDF, BM25, sentence-BERT"/]
+    Q --> S04["04_retrieve.py"]
+    I --> S04
+    S04 --> R[/"run files: top-20 chunks per question"/]
+
+    Q --> S05["05_run_qa.py<br/>Gemma and Borealis, 4B and 12B,<br/>with and without retrieved chunks"]
+    C --> S05
+    R --> S05
+    S05 --> QA[/"QA results"/]
+
+    R --> S06["06_make_annotation_sample.py"] --> SH[/"blind annotation sheets"/]
+    SH --> H{{"we label the chunks"}} --> L[/"human labels"/]
+    R --> S07["07_run_judge.py"] --> J[/"LLM-judge labels"/]
+
+    QA --> M["00_main.ipynb"]
+    R --> M
+    L --> M
+    J --> M
+    M --> OUT[/"tables and figures for the report"/]
+
+    R --> S08["08_make_demo_data.py"] --> D[/"demo/data"/] --> DEMO["demo.ipynb"]
+
+    classDef script fill:#dbeafe,stroke:#2563eb,color:#0f172a
+    classDef file fill:#f3f4f6,stroke:#6b7280,color:#111827
+    classDef notebook fill:#dcfce7,stroke:#16a34a,color:#052e16
+    classDef manual fill:#fef3c7,stroke:#d97706,color:#451a03
+    class S01,S02,S03,S04,S05,S06,S07,S08 script
+    class Q,A,C,I,R,QA,SH,L,J,OUT,D file
+    class M,DEMO notebook
+    class H manual
 ```
 
 ## Setup
@@ -57,4 +103,4 @@ TODO
 ## Data and licences
 
 - NRK-Quiz-QA ([ltg/nrk_quiz_qa](https://huggingface.co/datasets/ltg/nrk_quiz_qa)), MIT licence.
-- Norwegian Wikipedia (Bokmål and Nynorsk), CC BY-SA 4.0.
+- Norwegian Wikipedia (Bokmål and Nynorsk), dump from about 20 March 2019, from Språkbanken at the National Library of Norway ([Tekster fra norsk Wikipedia](https://data.norge.no/nb/datasets/23ae9838-2ad9-3d6f-8e61-4dfe0bb09376/tekster-fra-norsk-wikipedia)), CC BY-SA 3.0.

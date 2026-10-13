@@ -1,1 +1,58 @@
 # Central experiment settings (models, retrievers, chunking, k values, paths and seeds) read by both scripts and notebooks.
+# Change settings here, not in the code. Lines marked DECISION are choices the group has not made yet.
+
+seed: 42
+
+data:
+  languages: [nb, nn]                 # Northern Sámi is not used
+  nrk_quiz: ltg/nrk_quiz_qa           # Hugging Face dataset id
+  wikipedia_url: https://www.nb.no/sbfil/tekst/2019_wikipedia.tar.gz   # Språkbanken, about 20 March 2019
+  wikipedia_files: {nb: nob.wikipedia.json, nn: nno.wikipedia.json}
+
+chunking:
+  max_words: null          # DECISION: chunk size in words
+  overlap_words: null      # DECISION: words shared by neighbouring chunks
+  add_title: null          # DECISION: start every chunk with the article title (true/false)
+
+retrieval:
+  query_mode: null         # DECISION: full, last_sentence or with_options
+  top_n: 20                # chunks saved per question in the run files
+  retrievers: [tfidf, bm25, dense]
+  dense_model: null        # DECISION: e.g. NbAiLab/nb-sbert-base or NbAiLab/nb-sbert-v2-base
+
+qa:
+  k: null                  # DECISION: number of retrieved chunks in the prompt
+  scoring: null            # DECISION: option_text (NorEval p0/p1) or option_letter (p2/p3)
+  prompt_template: null    # DECISION: name of a template in src/norrag/prompts.py
+  chat_template: null      # DECISION: wrap prompts in the models' chat format (true/false)
+  models:                  # revision: the commit hash that was run, filled in for reproducibility
+    gemma-4b:     {id: google/gemma-3-4b-it,  revision: null}
+    gemma-12b:    {id: google/gemma-3-12b-it, revision: null}
+    borealis-4b:  {id: NbAiLab/borealis-4b,   revision: null}
+    borealis-12b: {id: NbAiLab/borealis-12b,  revision: null}
+
+annotation:
+  n_questions: null        # DECISION: questions in the hand-labelled sample
+  pool_k: 5                # top-k chunks from each retriever pooled for labelling
+  annotators: [a, b]       # one blind sheet per person
+
+judge:
+  model: null              # DECISION: OpenAI model used as judge (not a Gemma model)
+  temperature: 0
+
+demo:
+  n_questions: 20
+  retriever: bm25
+  models:
+    gemma:    {id: google/gemma-3-270m-it, revision: null}
+    borealis: {id: NbAiLab/borealis-270m,  revision: null}
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  indexes: data/indexes
+  results_raw: results/raw
+  tables: results/tables
+  figures: results/figures
+  annotations: annotations
+  demo_data: demo/data
