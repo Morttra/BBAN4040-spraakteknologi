@@ -9,3 +9,25 @@ What goes here:
 Note: the number of options varies between questions (2-5), so never assume there are four.
 Used by: scripts/01_prepare_data.py.
 """
+
+import pandas as pd
+from datasets import load_dataset
+
+
+def load_nrk_quiz(languages=("nb", "nn"), dataset="ltg/nrk_quiz_qa"):
+    """Load the quiz questions for the given languages into one DataFrame, one row per question."""
+    rows = []
+    for language in languages:
+        for item in load_dataset(dataset, language, split="test"):
+            labels = item["choices"]["label"]
+            rows.append({
+                "qid": item["id"],
+                "language": language,
+                "quiz": item["quiz"],
+                "question": item["question"],
+                "options": item["choices"]["text"],
+                "labels": labels,
+                "answer": item["answer"],
+                "answer_index": labels.index(item["answer"]),  # position of the correct label, e.g. "B" -> 1
+            })
+    return pd.DataFrame(rows)
