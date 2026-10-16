@@ -12,15 +12,15 @@ data:
   wikipedia_revision: b04c8d1ceb2f5cd4588862100d08de323dccfbaa   # pinned commit of the dataset
 
 chunking:
-  max_words: null          # DECISION: chunk size in words
-  overlap_words: null      # DECISION: words shared by neighbouring chunks
-  add_title: null          # DECISION: start every chunk with the article title (true/false)
+  max_words: 100          # DECISION: chunk size in words
+  overlap_words: 20      # DECISION: words shared by neighbouring chunks
+  add_title: true          # DECISION: start every chunk with the article title (true/false)
 
 retrieval:
   query_mode: null         # DECISION: full, last_sentence or with_options
   top_n: 20                # chunks saved per question in the run files
   retrievers: [tfidf, bm25, dense]
-  dense_model: null        # DECISION: e.g. NbAiLab/nb-sbert-base or NbAiLab/nb-sbert-v2-base
+  dense_model: NbAiLab/nb-sbert-v2-base        # DECISION: e.g. NbAiLab/nb-sbert-base or NbAiLab/nb-sbert-v2-base
 
 qa:
   k: null                  # DECISION: number of retrieved chunks in the prompt

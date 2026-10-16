@@ -16,3 +16,37 @@ Used by: scripts/02_chunk_corpus.py, scripts/08_make_demo_data.py, tests/test_ch
 Decisions (configs/experiment.yaml, `chunking`): chunk size, overlap, and whether each chunk starts
 with the article title.
 """
+
+
+def split_text(text, max_words=100, overlap_words=20):
+    """Cut a text into chunks of at most max_words words, keeping whole paragraphs together where possible.
+
+    Each chunk after the first starts with the last overlap_words words of the chunk before it, so a fact
+    on a boundary is not lost. Only paragraphs longer than max_words - overlap_words are cut in the middle.
+    """
+    # 1. Cut the text into pieces: one per paragraph (line), and long paragraphs into several pieces
+    piece_size = max_words - overlap_words  # leaves room for the overlap at the start of the next chunk
+    pieces = []
+    for paragraph in text.split("\n"):
+        words = paragraph.split()
+        for start in range(0, len(words), piece_size):
+            pieces.append(words[start:start + piece_size])
+
+    # 2. Pack the pieces into chunks, starting a new chunk when the next piece would not fit
+    chunks = []
+    current = []  # the pieces in the chunk being built
+    new_words = 0  # words in `current` that are not overlap from the previous chunk
+    for piece in pieces:
+        if new_words > 0 and sum(len(p) for p in current) + len(piece) > max_words:
+            chunks.append(current)
+            all_words = [word for p in current for word in p]
+            tail = all_words[-overlap_words:] if overlap_words > 0 else []
+            current = [tail] if tail else []
+            new_words = 0
+        current.append(piece)
+        new_words += len(piece)
+    if new_words > 0:  # the last chunk, unless it would only repeat the overlap
+        chunks.append(current)
+
+    # 3. Turn each chunk back into text: words joined by spaces, pieces (paragraphs) by line breaks
+    return ["\n".join(" ".join(p) for p in chunk) for chunk in chunks]

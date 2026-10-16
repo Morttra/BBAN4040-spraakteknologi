@@ -1,3 +1,9 @@
 # Decision log
 
 Dated log of methodological decisions and changes from the M1 sketch, used when writing M2 and the method section.
+
+Change in wikipedia version:
+In the beginning, we based our project on the Wikipedia dump from data.norge.no, which was dated around 20th March 2019. The 16th of October 2026 we discovered that a new version of the NRK-Quiz was released the same day. When checking which years the quiz reference, we found that quite a number of questions were more recent than 2019. The solution was to use a November 2023 dump of Wikipedia available from Hugging Face. This also gave us more articles and questions to work with. With the 2023 dump there are only 13 questions not covered by the dataset. 473 questions mentioned 2019 or later years, so changing the dataset was the right move. Version 2 of the quiz had also fixed som inaccuracies. 
+
+Embedding/Chunking:
+100 word chunks, as 53% of articles is less than 100 words. 74% of articles are less than 200 words. These researceher used 100 word chunks on wikipedia (https://arxiv.org/pdf/2004.04906v2/1000) and it worked well. We keep the title in each chunk, and use a 20 word overlap window as a starting point. The sentence-BERT model used is nb-sbert-v2-base.
