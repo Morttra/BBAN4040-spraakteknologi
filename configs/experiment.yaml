@@ -6,8 +6,10 @@ seed: 42
 data:
   languages: [nb, nn]                 # Northern Sámi is not used
   nrk_quiz: ltg/nrk_quiz_qa           # Hugging Face dataset id
-  wikipedia_url: https://www.nb.no/sbfil/tekst/2019_wikipedia.tar.gz   # Språkbanken, about 20 March 2019
-  wikipedia_files: {nb: nob.wikipedia.json, nn: nno.wikipedia.json}
+  nrk_quiz_revision: v2.0             # pinned version: 4,790 questions (v1.0, used in the NorEval paper, had 4,930)
+  wikipedia: wikimedia/wikipedia      # Hugging Face dataset id: Wikimedia's dump of 1 November 2023
+  wikipedia_configs: {nb: 20231101.no, nn: 20231101.nn}
+  wikipedia_revision: b04c8d1ceb2f5cd4588862100d08de323dccfbaa   # pinned commit of the dataset
 
 chunking:
   max_words: null          # DECISION: chunk size in words
@@ -48,7 +50,6 @@ demo:
     borealis: {id: NbAiLab/borealis-270m,  revision: null}
 
 paths:
-  data_raw: data/raw
   data_processed: data/processed
   indexes: data/indexes
   results_raw: results/raw

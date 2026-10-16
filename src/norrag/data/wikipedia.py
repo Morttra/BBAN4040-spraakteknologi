@@ -1,90 +1,52 @@
 """Download Norwegian Wikipedia (Bokmål and Nynorsk) and clean the articles into a corpus ready for chunking.
 
-Source: Språkbanken's "Tekster fra norsk Wikipedia", a dump from about 20 March 2019 (CC BY-SA 3.0),
-https://www.nb.no/sbfil/tekst/2019_wikipedia.tar.gz (about 500 MB). The archive holds nob.wikipedia.json
-(Bokmål, 1.3 GB), nno.wikipedia.json (Nynorsk, 300 MB) and sme.wikipedia.json (Northern Sámi, not used).
-Each file is one big JSON list of articles with pageid, title, text (already plain text),
-contentcategories, hiddencategories, wikidata, revid and bytelength.
+Source: Wikimedia's dump of 1 November 2023, as published on Hugging Face: dataset "wikimedia/wikipedia",
+configs "20231101.no" (Bokmål, 617,937 articles) and "20231101.nn" (Nynorsk, 167,653 articles).
+Licence: CC BY-SA 3.0 and GFDL, per the dataset card. Each row has id, url, title and text (plain text).
+The first download (about 730 MB) is cached by Hugging Face in ~/.cache/huggingface.
 
 What goes here:
-- download_wikipedia(url, dest_dir) -> Path: download and unpack the archive (skip if already done).
-- load_wikipedia(path, language) -> DataFrame: one row per article with article_id, language, title,
-  text, categories and wikidata. Loading the 1.3 GB file at once needs several GB of memory.
-- clean_text(text) -> str: tidy one article, e.g. cut trailing sections such as "Eksterne lenker",
-  "Referanser" or "Se også" (Nynorsk: "Kjelder", "Sjå òg") that only add noise to retrieval.
+- clean_text(text) -> str: cut the trailing sections such as "Referanser", "Eksterne lenker" or "Se også"
+  (Nynorsk: "Kjelder", "Sjå òg") and footnotes, which only add noise to retrieval.
+- load_wikipedia(dataset, config_name, language, revision) -> DataFrame: one row per cleaned article
+  with article_id, language, title, url, text and n_words.
 
-Note: pageid is only unique within one language's Wikipedia, so article_id combines language and
-pageid, e.g. "nb-1348455".
+Note: Wikipedia's page id is only unique within one language, so article_id combines language and
+page id, e.g. "nb-1348455".
 Used by: scripts/01_prepare_data.py.
-Decisions: which sections to cut, and whether to drop very short articles.
+Decisions: which sections to cut (END_HEADINGS); short and long articles are kept.
 """
 
-import json
 import re
-import tarfile
-import urllib.request
-from pathlib import Path
 
 import pandas as pd
+from datasets import load_dataset
 
-# Headings of the table of contents that Wikipedia puts near the top of longer articles
-TOC_HEADINGS = ["Innhold", "Innhald", "Innhaldsliste"]
-# Headings of the trailing sections (see also, sources, links), Bokmål and Nynorsk
-END_HEADINGS = ["Se også", "Referanser", "Litteratur", "Kilder", "Eksterne lenker",
-                "Sjå òg", "Kjelder", "Referansar", "Bakgrunnsstoff"]
+# Headings of the trailing sections (see also, sources, footnotes, links), Bokmål and Nynorsk
+END_HEADINGS = ["Se også", "Referanser", "Litteratur", "Kilder", "Eksterne lenker", "Fotnoter", "Noter",
+                "Sjå òg", "Kjelder", "Referansar", "Bakgrunnsstoff", "Fotnotar", "Notar", "Merknader", "Merknadar"]
 
-# The table of contents: its heading line, then blank lines and numbered lines such as "4.1 Ernæring"
-TOC_PATTERN = re.compile(r"^(?:" + "|".join(TOC_HEADINGS) + r")[ \t]*\n(?:[ \t]*\n|\d+(?:\.\d+)*[ \t][^\n]*\n)+", re.M)
 # A trailing-section heading standing alone on its own line
 END_PATTERN = re.compile(r"^(?:" + "|".join(map(re.escape, END_HEADINGS)) + r")[ \t]*$", re.M)
 
 
-def download_wikipedia(url, dest_dir):
-    """Download the Wikipedia archive into dest_dir and unpack it; both steps are skipped if already done."""
-    dest_dir = Path(dest_dir)
-    dest_dir.mkdir(parents=True, exist_ok=True)
-    archive = dest_dir / url.split("/")[-1]  # the file name at the end of the URL: 2019_wikipedia.tar.gz
-
-    if not archive.exists():
-        print(f"Downloading {url} (about 500 MB) ...")
-        partial = archive.with_suffix(".part")  # download under a temporary name ...
-        urllib.request.urlretrieve(url, partial)
-        partial.rename(archive)  # ... and rename only when complete, so a broken download is never mistaken for a finished one
-
-    if not any(dest_dir.rglob("*.wikipedia.json")):
-        print(f"Unpacking {archive.name} ...")
-        with tarfile.open(archive) as tar:
-            tar.extractall(dest_dir, filter="data")  # filter="data" blocks files that try to write outside dest_dir
-
-    return dest_dir
-
-
 def clean_text(text):
-    """Remove the table of contents and cut everything from the first trailing section (sources, links, see also)."""
-    text = TOC_PATTERN.sub("", text, count=1)
+    """Cut everything from the first trailing section (sources, footnotes, links, see also)."""
     match = END_PATTERN.search(text)
     if match:
         text = text[:match.start()]
     return text.strip()
 
 
-def load_wikipedia(path, language):
-    """Read one language's JSON file into a DataFrame of cleaned articles, one row per article."""
-    with open(path, encoding="utf-8") as f:
-        articles = json.load(f)  # the whole file is one JSON list; needs a few GB of memory for Bokmål
+def load_wikipedia(dataset, config_name, language, revision=None):
+    """Load one language from Hugging Face into a DataFrame of cleaned articles, one row per article."""
+    articles = load_dataset(dataset, config_name, split="train", revision=revision).to_pandas()
 
-    rows = []
-    for article in articles:
-        text = clean_text(article["text"])
-        if not text:  # nothing left after cleaning
-            continue
-        rows.append({
-            "article_id": f"{language}-{article['pageid']}",  # pageid is only unique within one language
-            "language": language,
-            "title": article["title"],
-            "text": text,
-            "n_words": len(text.split()),
-            "categories": article["contentcategories"],
-            "wikidata": article["wikidata"] or None,  # about 850 articles have false instead of an id
-        })
-    return pd.DataFrame(rows)
+    articles["text"] = articles["text"].map(clean_text)  # run clean_text on every article
+    articles = articles[articles["text"] != ""]  # drop articles with nothing left after cleaning
+
+    articles["article_id"] = language + "-" + articles["id"]
+    articles["language"] = language
+    articles["n_words"] = articles["text"].str.split().str.len()
+    articles = articles.drop_duplicates("article_id")  # keep article_id unique, in case a page appears twice
+    return articles[["article_id", "language", "title", "url", "text", "n_words"]].reset_index(drop=True)

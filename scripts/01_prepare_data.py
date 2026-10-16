@@ -2,20 +2,18 @@
 
 Steps:
 1. Load the NRK-Quiz-QA questions (norrag.data.nrk_quiz) and save them.
-2. Download and unpack the 2019 Wikipedia archive into data/raw/ (norrag.data.wikipedia; about 500 MB,
-   done once).
-3. Load the Bokmål and Nynorsk files, clean the text and save them as one table.
+2. Load the Bokmål and Nynorsk Wikipedia (norrag.data.wikipedia), clean the text and save them as one table.
 
-Reads:  Hugging Face (ltg/nrk_quiz_qa) and https://www.nb.no/sbfil/tekst/2019_wikipedia.tar.gz
+Reads:  Hugging Face: ltg/nrk_quiz_qa (v2.0) and wikimedia/wikipedia (20231101.no, 20231101.nn)
 Writes: data/processed/questions.parquet, data/processed/articles.parquet
-Run:    python scripts/01_prepare_data.py      (minutes, mostly the download)
+Run:    python scripts/01_prepare_data.py      (a few minutes; the first run downloads about 730 MB)
 """
 
 import pandas as pd
 
 from norrag.config import get_path, load_config
 from norrag.data.nrk_quiz import load_nrk_quiz
-from norrag.data.wikipedia import download_wikipedia, load_wikipedia
+from norrag.data.wikipedia import load_wikipedia
 
 
 def main():
@@ -24,18 +22,16 @@ def main():
     processed = get_path(config, "data_processed")
 
     # 1. Quiz questions
-    questions = load_nrk_quiz(data["languages"], data["nrk_quiz"])
+    questions = load_nrk_quiz(data["languages"], data["nrk_quiz"], data["nrk_quiz_revision"])
     questions.to_parquet(processed / "questions.parquet", index=False)
     print(f"Saved {len(questions):,} questions to data/processed/questions.parquet")
 
-    # 2. Wikipedia archive (skipped if already downloaded and unpacked)
-    raw = download_wikipedia(data["wikipedia_url"], get_path(config, "data_raw"))
-
-    # 3. Clean each language and save them together as one table
+    # 2. Clean each language's Wikipedia and save them together as one table
     tables = []
     for language in data["languages"]:
         print(f"Cleaning Wikipedia ({language}) ...")
-        tables.append(load_wikipedia(raw / data["wikipedia_files"][language], language))
+        tables.append(load_wikipedia(data["wikipedia"], data["wikipedia_configs"][language],
+                                     language, data["wikipedia_revision"]))
     articles = pd.concat(tables, ignore_index=True)
     articles.to_parquet(processed / "articles.parquet", index=False)
     print(f"Saved {len(articles):,} articles to data/processed/articles.parquet")

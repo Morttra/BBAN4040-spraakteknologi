@@ -44,7 +44,7 @@ Blue boxes are scripts you run, grey shapes are files they write, green boxes ar
 ```mermaid
 flowchart TD
     NRK[("NRK-Quiz-QA<br/>Hugging Face")]
-    WIKI[("Norwegian Wikipedia, March 2019<br/>Språkbanken")]
+    WIKI[("Norwegian Wikipedia, Nov 2023<br/>Hugging Face")]
 
     NRK --> S01
     WIKI --> S01
@@ -102,5 +102,5 @@ TODO
 
 ## Data and licences
 
-- NRK-Quiz-QA ([ltg/nrk_quiz_qa](https://huggingface.co/datasets/ltg/nrk_quiz_qa)), MIT licence.
-- Norwegian Wikipedia (Bokmål and Nynorsk), dump from about 20 March 2019, from Språkbanken at the National Library of Norway ([Tekster fra norsk Wikipedia](https://data.norge.no/nb/datasets/23ae9838-2ad9-3d6f-8e61-4dfe0bb09376/tekster-fra-norsk-wikipedia)), CC BY-SA 3.0.
+- NRK-Quiz-QA v2.0 ([ltg/nrk_quiz_qa](https://huggingface.co/datasets/ltg/nrk_quiz_qa)), MIT licence.
+- Norwegian Wikipedia (Bokmål and Nynorsk), Wikimedia's dump of 1 November 2023 ([wikimedia/wikipedia](https://huggingface.co/datasets/wikimedia/wikipedia)), CC BY-SA 3.0 and GFDL.

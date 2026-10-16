@@ -6,14 +6,15 @@ Where the project's data comes from and how it is laid out; everything else in t
 
 | Data | Source | Licence |
 |---|---|---|
-| Quiz questions, Bokmål (3,600) and Nynorsk (1,330) | NRK-Quiz-QA, [ltg/nrk_quiz_qa](https://huggingface.co/datasets/ltg/nrk_quiz_qa) on Hugging Face | MIT |
-| Norwegian Wikipedia, Bokmål (492,864 articles) and Nynorsk (139,927), dump from about 20 March 2019 | Språkbanken, National Library of Norway: [Tekster fra norsk Wikipedia](https://data.norge.no/nb/datasets/23ae9838-2ad9-3d6f-8e61-4dfe0bb09376/tekster-fra-norsk-wikipedia) ([download](https://www.nb.no/sbfil/tekst/2019_wikipedia.tar.gz), [documentation](https://www.nb.no/sbfil/dok/2019_wikipedia.pdf)) | CC BY-SA 3.0 |
+| Quiz questions, version v2.0: Bokmål (3,516) and Nynorsk (1,274) | NRK-Quiz-QA, [ltg/nrk_quiz_qa](https://huggingface.co/datasets/ltg/nrk_quiz_qa) on Hugging Face | MIT |
+| Norwegian Wikipedia, Bokmål (617,937 articles) and Nynorsk (167,653), dump of 1 November 2023 | Wikimedia, via [wikimedia/wikipedia](https://huggingface.co/datasets/wikimedia/wikipedia) on Hugging Face (configs `20231101.no` and `20231101.nn`) | CC BY-SA 3.0 and GFDL |
+
+Both datasets are downloaded through Hugging Face, which caches them in `~/.cache/huggingface`; the versions used are pinned in `configs/experiment.yaml`.
 
 ## Layout after running the scripts
 
 ```
 data/
-├── raw/              the downloaded Wikipedia archive and its unpacked JSON files (01)
 ├── processed/
 │   ├── questions.parquet   one row per quiz question (01)
 │   ├── articles.parquet    one row per cleaned Wikipedia article (01)

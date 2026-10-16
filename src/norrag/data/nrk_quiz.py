@@ -14,11 +14,14 @@ import pandas as pd
 from datasets import load_dataset
 
 
-def load_nrk_quiz(languages=("nb", "nn"), dataset="ltg/nrk_quiz_qa"):
-    """Load the quiz questions for the given languages into one DataFrame, one row per question."""
+def load_nrk_quiz(languages=("nb", "nn"), dataset="ltg/nrk_quiz_qa", revision=None):
+    """Load the quiz questions for the given languages into one DataFrame, one row per question.
+
+    revision pins a dataset version (e.g. "v2.0"); None means whatever is newest on Hugging Face.
+    """
     rows = []
     for language in languages:
-        for item in load_dataset(dataset, language, split="test"):
+        for item in load_dataset(dataset, language, split="test", revision=revision):
             labels = item["choices"]["label"]
             rows.append({
                 "qid": item["id"],
