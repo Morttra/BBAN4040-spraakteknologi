@@ -17,6 +17,9 @@ Decisions (configs/experiment.yaml, `chunking`): chunk size, overlap, and whethe
 with the article title.
 """
 
+import pandas as pd
+from tqdm import tqdm
+
 
 def split_text(text, max_words=100, overlap_words=20):
     """Cut a text into chunks of at most max_words words, keeping whole paragraphs together where possible.
@@ -50,3 +53,30 @@ def split_text(text, max_words=100, overlap_words=20):
 
     # 3. Turn each chunk back into text: words joined by spaces, pieces (paragraphs) by line breaks
     return ["\n".join(" ".join(p) for p in chunk) for chunk in chunks]
+
+
+def make_chunk_id(article_id, position):
+    """Return the id of chunk number `position` (counting from 0) in an article, e.g. "nb-1348455-0003"."""
+    return f"{article_id}-{position:04d}"  # :04d writes the number with four digits: 3 -> "0003"
+
+
+def chunk_corpus(articles, max_words=100, overlap_words=20, add_title=True):
+    """Chunk every article in the articles table; returns a DataFrame with one row per chunk.
+
+    With add_title, each chunk's text starts with the article title on its own line. The title is not
+    counted in max_words; n_words counts the article words in the chunk only.
+    """
+    rows = []
+    for article in tqdm(articles.itertuples(index=False), total=len(articles), desc="Chunking", unit=" articles"):
+        chunks = split_text(article.text, max_words, overlap_words)
+        for position, chunk in enumerate(chunks):
+            rows.append({
+                "chunk_id": make_chunk_id(article.article_id, position),
+                "article_id": article.article_id,
+                "language": article.language,
+                "title": article.title,
+                "position": position,
+                "text": f"{article.title}\n{chunk}" if add_title else chunk,
+                "n_words": len(chunk.split()),
+            })
+    return pd.DataFrame(rows)
