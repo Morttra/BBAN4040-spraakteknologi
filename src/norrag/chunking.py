@@ -1,7 +1,7 @@
 """Split Wikipedia articles into passages with stable chunk_ids that are shared by all retrievers.
 
 Why: whole articles are too long to put in a prompt, so each article is cut into chunks and the
-retrievers search among the chunks. All three retrievers must use exactly the same chunks, so that a
+retrievers search among the chunks. Both retrievers (BM25 and dense) must use exactly the same chunks, so that a
 relevance label on a chunk counts for every retriever that returns it.
 
 What goes here:

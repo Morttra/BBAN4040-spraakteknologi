@@ -19,7 +19,7 @@ chunking:
 retrieval:
   query_mode: null         # DECISION: full, last_sentence or with_options
   top_n: 20                # chunks saved per question in the run files
-  retrievers: [tfidf, bm25, dense]
+  retrievers: [bm25, dense]       # BM25 chosen over TF-IDF (see docs/decisions.md)
   dense_model: NbAiLab/nb-sbert-v2-base        # DECISION: e.g. NbAiLab/nb-sbert-base or NbAiLab/nb-sbert-v2-base
 
 qa:

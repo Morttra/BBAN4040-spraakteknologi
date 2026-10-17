@@ -60,5 +60,5 @@ data/
 │   ├── questions.parquet   one row per quiz question (01)
 │   ├── articles.parquet    one row per cleaned Wikipedia article (01)
 │   └── chunks.parquet      one row per chunk, with its chunk_id (02)
-└── indexes/          one folder per retriever: tfidf/, bm25/, dense/<model>/ (03)
+└── indexes/          one folder per retriever: bm25/, dense/<model>/ (03)
 ```

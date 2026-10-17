@@ -8,7 +8,7 @@ What goes here:
       "full"            the whole question text
       "last_sentence"   only the final sentence, usually the actual question
       "with_options"    the question followed by the answer options
-  The same query goes to all three retrievers.
+  The same query goes to both retrievers.
 
 Used by: scripts/04_retrieve.py, the demo.
 Decision (`retrieval.query_mode`): which mode to use.

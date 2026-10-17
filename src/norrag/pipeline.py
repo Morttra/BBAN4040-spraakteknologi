@@ -11,7 +11,7 @@ What goes here:
     3. scores every option (scoring.py),
     4. returns one record: qid, model, condition, prompt, option log-probs, predicted label and
        correct (True/False).
-- Conditions: "no_rag" (Gemma or Borealis without context) and "rag_tfidf", "rag_bm25", "rag_dense"
+- Conditions: "no_rag" (Gemma or Borealis without context) and "rag_bm25", "rag_dense"
   (Gemma with the chunks from that retriever).
 
 Used by: scripts/05_run_qa.py, demo/demo.ipynb.

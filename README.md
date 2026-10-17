@@ -16,7 +16,7 @@ We compare how well small language models answer questions about Norwegian histo
 │   ├── records.py               JSONL logging of runs with model, prompt and settings
 │   ├── data/                    Loaders for NRK-Quiz-QA and Norwegian Wikipedia
 │   ├── chunking.py              Wikipedia articles → chunks with stable chunk_ids
-│   ├── retrieval/               TF-IDF, BM25 and dense retrievers, query building
+│   ├── retrieval/               BM25 and dense retrievers, query building
 │   ├── prompts.py               Prompt templates with and without context
 │   ├── models.py                Loading Gemma 3 and Borealis locally
 │   ├── scoring.py               Log-likelihood multiple-choice scoring
@@ -51,7 +51,7 @@ flowchart TD
     S01["01_prepare_data.py"] --> Q[/"questions.parquet"/]
     S01 --> A[/"articles.parquet"/]
     A --> S02["02_chunk_corpus.py"] --> C[/"chunks.parquet"/]
-    C --> S03["03_build_indexes.py"] --> I[/"indexes: TF-IDF, BM25, sentence-BERT"/]
+    C --> S03["03_build_indexes.py"] --> I[/"indexes: BM25, sentence-BERT"/]
     Q --> S04["04_retrieve.py"]
     I --> S04
     S04 --> R[/"run files: top-20 chunks per question"/]

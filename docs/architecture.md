@@ -31,7 +31,7 @@ Every file starts with a few lines saying what goes in it, so open the file to r
 |---|---|---|---|---|
 | 1 | `01_prepare_data.py` | `data/nrk_quiz.py`, `data/wikipedia.py` | Hugging Face (quiz), Wikimedia dumps (Wikipedia) | `data/processed/questions.parquet`, `articles.parquet` |
 | 2 | `02_chunk_corpus.py` | `chunking.py` | `articles.parquet` | `data/processed/chunks.parquet` |
-| 3 | `03_build_indexes.py` | `retrieval/` (`base`, `text`, `tfidf`, `bm25`, `dense`) | `chunks.parquet` | `data/indexes/<retriever>/` |
+| 3 | `03_build_indexes.py` | `retrieval/` (`base`, `text`, `bm25`, `dense`) | `chunks.parquet` | `data/indexes/<retriever>/` |
 | 4 | `04_retrieve.py` | `retrieval/query.py`, `retrieval/base.py`, `records.py` | questions, indexes | `results/raw/runs/<retriever>.jsonl` |
 | 5 | `05_run_qa.py` | `models.py`, `pipeline.py` (which uses `prompts.py` and `scoring.py`), `records.py` | questions, chunks, run files | `results/raw/qa/<model>__<condition>.jsonl` |
 | 6 | `06_make_annotation_sample.py` | `annotation.py` | questions, chunks, run files | `annotations/sheet_<name>.csv`, `annotations/key.csv` |
@@ -82,7 +82,7 @@ The work splits into two tracks that you can do at the same time, one each, and 
 2. `metrics.accuracy` and a first table in `00_main.ipynb`: Gemma, Borealis and Gemma + BM25 on the same 200 questions. That is a solid M2 status.
 
 **After M2**
-1. `retrieval/tfidf.py` and `retrieval/dense.py` (sentence-BERT), then `03` and `04` for all three retrievers.
+1. `retrieval/dense.py` (sentence-BERT), then `03` and `04` for the dense retriever.
 2. Write the annotation guideline in `annotations/README.md`, then `annotation.py` and `06`, and label your sheets.
 3. `judge.py` and `07` on the hand-labelled sample, check the agreement, then run it on more chunks.
 4. Full `05` runs overnight: 4B first, then 12B.
