@@ -18,6 +18,8 @@ dependencies = [
     "python-dotenv",
     "tqdm",
     "datasets",
+    "beautifulsoup4",
+    "lxml",
     "scikit-learn",
     "bm25s",
     "PyStemmer",

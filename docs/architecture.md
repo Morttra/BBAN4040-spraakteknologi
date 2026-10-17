@@ -29,7 +29,7 @@ Every file starts with a few lines saying what goes in it, so open the file to r
 
 | Step | Script | Uses from `src/norrag/` | Reads | Writes |
 |---|---|---|---|---|
-| 1 | `01_prepare_data.py` | `data/nrk_quiz.py`, `data/wikipedia.py` | Hugging Face (quiz and Wikipedia) | `data/processed/questions.parquet`, `articles.parquet` |
+| 1 | `01_prepare_data.py` | `data/nrk_quiz.py`, `data/wikipedia.py` | Hugging Face (quiz), Wikimedia dumps (Wikipedia) | `data/processed/questions.parquet`, `articles.parquet` |
 | 2 | `02_chunk_corpus.py` | `chunking.py` | `articles.parquet` | `data/processed/chunks.parquet` |
 | 3 | `03_build_indexes.py` | `retrieval/` (`base`, `text`, `tfidf`, `bm25`, `dense`) | `chunks.parquet` | `data/indexes/<retriever>/` |
 | 4 | `04_retrieve.py` | `retrieval/query.py`, `retrieval/base.py`, `records.py` | questions, indexes | `results/raw/runs/<retriever>.jsonl` |
