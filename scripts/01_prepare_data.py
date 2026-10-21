@@ -10,6 +10,8 @@ Writes: data/processed/questions.parquet, data/processed/articles.parquet
 Run:    python scripts/01_prepare_data.py      (download time, plus roughly 80 minutes of conversion)
 """
 
+import urllib.request
+
 import pandas as pd
 
 from norrag.config import get_path, load_config
@@ -18,6 +20,11 @@ from norrag.data.wikipedia import download_file, load_wikipedia
 
 
 def main():
+    # Wikimedia blocks Python's default User-Agent ("Python-urllib/3.x") with 403 Forbidden, so name the project
+    opener = urllib.request.build_opener()
+    opener.addheaders = [("User-Agent", "norrag/0.1 (https://github.com/Morttra/BBAN4040-spraakteknologi; NTNU BBAN4040 student project)")]
+    urllib.request.install_opener(opener)
+
     config = load_config()
     data = config["data"]
     processed = get_path(config, "data_processed")
