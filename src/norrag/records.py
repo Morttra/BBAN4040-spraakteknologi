@@ -18,7 +18,7 @@ import pandas as pd
 from norrag.config import PROJECT_ROOT
 
 # Packages whose versions can change results; their versions are saved in every .meta.json
-KEY_PACKAGES = ["torch", "transformers", "sentence-transformers", "bm25s", "scikit-learn", "openai"]
+KEY_PACKAGES = ["torch", "transformers", "sentence-transformers", "bm25s", "scikit-learn", "openai", "PyStemmer"]
 
 
 def write_jsonl(path, rows, append=False):
@@ -79,8 +79,8 @@ def package_version(name):
 def write_meta(path, config, **extra):
     """Save a .meta.json next to a results file: time, git commit, package versions, settings and any extra details.
 
-    Example: write_meta("results/raw/qa/gemma-4b__rag_bm25.jsonl", config, model_id="google/gemma-3-4b-it")
-    writes results/raw/qa/gemma-4b__rag_bm25.meta.json. This documents model, version, prompts and settings.
+    Example: write_meta("results/raw/qa/gemma-12b__rag_bm25.jsonl", config, model_id="google/gemma-3-12b-it")
+    writes results/raw/qa/gemma-12b__rag_bm25.meta.json. This documents model, version, prompts and settings.
     """
     meta_path = Path(path).with_suffix(".meta.json")
     meta = {

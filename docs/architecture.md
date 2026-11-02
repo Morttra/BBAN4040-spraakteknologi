@@ -29,7 +29,7 @@ Every file starts with a few lines saying what goes in it, so open the file to r
 
 | Step | Script | Uses from `src/norrag/` | Reads | Writes |
 |---|---|---|---|---|
-| 1 | `01_prepare_data.py` | `data/nrk_quiz.py`, `data/wikipedia.py` | Hugging Face (quiz), Wikimedia dumps (Wikipedia) | `data/processed/questions.parquet`, `articles.parquet` |
+| 1 | `01_prepare_data.py` | `data/nrk_quiz.py`, `data/wikipedia.py` | Hugging Face (quiz), Wikimedia dump (Bokmål Wikipedia) | `data/processed/questions.parquet`, `articles.parquet` |
 | 2 | `02_chunk_corpus.py` | `chunking.py` | `articles.parquet` | `data/processed/chunks.parquet` |
 | 3 | `03_build_indexes.py` | `retrieval/` (`base`, `text`, `bm25`, `dense`) | `chunks.parquet` | `data/indexes/<retriever>/` |
 | 4 | `04_retrieve.py` | `retrieval/query.py`, `retrieval/base.py`, `records.py` | questions, indexes | `results/raw/runs/<retriever>.jsonl` |
@@ -74,8 +74,8 @@ The work splits into two tracks that you can do at the same time, one each, and 
 
 **Track B: models and scoring**
 1. `models.py`: load `google/gemma-3-270m-it` in a notebook and check that it runs. It is small and quick to download.
-2. `prompts.py` and `scoring.py`: score 20 questions in the notebook. The 270M model should land near chance and the 4B model clearly above it; if not, something is wrong.
-3. `pipeline.py` with `no_rag` only, then `05_run_qa.py --limit 200` for Gemma 4B and Borealis 4B.
+2. `prompts.py` and `scoring.py`: score 20 questions in the notebook. The 270M model should land near chance and the 12B model clearly above it; if not, something is wrong.
+3. `pipeline.py` with `no_rag` only, then `05_run_qa.py --limit 200` for Gemma 12B and Borealis 12B.
 
 **Join: the first RAG run (before M2 on 27 October)**
 1. `05_run_qa.py --condition rag_bm25 --limit 200`.
@@ -85,7 +85,7 @@ The work splits into two tracks that you can do at the same time, one each, and 
 1. `retrieval/dense.py` (sentence-BERT), then `03` and `04` for the dense retriever.
 2. Write the annotation guideline in `annotations/README.md`, then `annotation.py` and `06`, and label your sheets.
 3. `judge.py` and `07` on the hand-labelled sample, check the agreement, then run it on more chunks.
-4. Full `05` runs overnight: 4B first, then 12B.
+4. Full `05` runs overnight: Borealis and Gemma without retrieval, then Gemma with the retriever chosen in the retrieval evaluation.
 
 **Final weeks (deadline 18 November)**
 1. Finish `metrics.py` and `tests/test_metrics.py`, so that `00_main.ipynb` produces every table and figure.

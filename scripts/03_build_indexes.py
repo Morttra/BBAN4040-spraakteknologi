@@ -1,92 +1,52 @@
 """Build and save the BM25 and dense indexes over the Wikipedia chunks.
 
 Reads:  data/processed/chunks.parquet and the `retrieval` settings
-Writes: data/indexes/bm25/, data/indexes/dense/<model name>/
-Uses:   norrag.retrieval (base.get_retriever, and through it bm25, dense and text)
-Run:    python scripts/03_build_indexes.py --retriever bm25      (one retriever at a time)
+Writes: data/indexes/bm25/ and data/indexes/dense/<model name>/, each with an index.meta.json
+Uses:   norrag.retrieval (base.get_retriever and base.index_dir, and through them bm25, dense and text)
+Run:    python scripts/03_build_indexes.py                       both retrievers in the config
+        python scripts/03_build_indexes.py --retriever bm25      only one
+        python scripts/03_build_indexes.py --retriever dense --limit 20000   a test on the first 20,000 chunks,
+                                                                  saved to a separate "_sample20000" folder
 
-BM25 takes minutes. The dense index embeds every chunk and can take hours, so add a
---limit option and try it on a few thousand chunks first.
+BM25 takes minutes. The dense index embeds every chunk and takes hours; it saves its work block by
+block, so if it is stopped, running the same command again continues where it left off.
 """
-#0 Laster inn biblioteker
+
+import argparse
+import time
+
 import pandas as pd
-import re
-import unicodedata
-import html
 
-from sentence_transformers import SentenceTransformer
-from rank_bm25 import BM25Okapi
-
-#1 Leser inn Parquet fil
 from norrag.config import get_path, load_config
-
-config = load_config()
-processed = get_path(config, "data_processed")
-
-chunks = pd.read_parquet(processed / "chunks.parquet")
-print(chunks.head())
-
-#2 Vasking
-#vasking_bm25
-def preprocess_bm25(text: str) -> list[str]:
-    if text is None:
-        return []
-    
-    #gjør alt til lowercase
-    text = str(text).lower()
-    #beholder norske symboler, tall og bindestreker
-    tokens = re.findall(r"[a-zæøå0-9]+(?:-[a-zæøå0-9]+)*", text) 
-    
-    return tokens
-
-#vasking for BERT
-def preprocess_bert(text) -> str:
-    if text is None:
-        return ""
-    
-    text = str(text)
-    # Konverter HTML-entities, f.eks. &amp; -> &
-    text = html.unescape(text)
-    # Normaliser Unicode
-    text = unicodedata.normalize("NFC", text)
-    # Fjern HTML-tagger
-    text = re.sub(r"<[^>]+>", " ", text)
-    # Fjern kontrolltegn
-    text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", " ", text)
-    # Normaliser mellomrom
-    text = re.sub(r"\s+", " ", text).strip()
-
-    return text
-
-# 4. Lag begge representasjonene
-chunks["chunk_id"] = chunks["chunk_id"].astype(str) if "chunk_id" in chunks.columns else chunks.index.astype(str)
+from norrag.records import write_meta
+from norrag.retrieval.base import get_retriever, index_dir
 
 
-chunks["text_clean"] = chunks["text"].apply(preprocess_bert)
-chunks["bm25_tokens"] = chunks["text"].apply(preprocess_bm25)
+def main():
+    parser = argparse.ArgumentParser(description="Build the retrieval indexes over the chunks.")
+    parser.add_argument("--retriever", choices=["bm25", "dense"], help="build only this one (default: all in the config)")
+    parser.add_argument("--limit", type=int, help="use only the first N chunks, for testing (saved to a separate folder)")
+    args = parser.parse_args()
 
-#5 Fjern tomme chunks etter rensing
-chunks = chunks[
-    (chunks["text_clean"].str.len() > 0)
-    & (chunks["bm25_tokens"].apply(len) > 0)
-].reset_index(drop=True)
+    config = load_config()
+    chunks = pd.read_parquet(get_path(config, "data_processed") / "chunks.parquet", columns=["chunk_id", "text"])
+    if args.limit:
+        chunks = chunks.head(args.limit)
 
-chunk_ids = chunks["chunk_id"].tolist()
-chunk_id_to_index = {chunk_id: i for i, chunk_id in enumerate(chunk_ids)}
+    names = [args.retriever] if args.retriever else config["retrieval"]["retrievers"]
+    for name in names:
+        directory = index_dir(config, name)
+        if args.limit:  # keep test indexes apart from the real ones
+            directory = directory.with_name(f"{directory.name}_sample{args.limit}")
+
+        print(f"Building the {name} index over {len(chunks):,} chunks in {directory} ...")
+        start = time.time()
+        get_retriever(name, config).build(chunks, directory)
+        minutes = (time.time() - start) / 60
+
+        write_meta(directory / "index", config, retriever=name, n_chunks=len(chunks), minutes=round(minutes, 1))
+        print(f"Done in {minutes:.1f} minutes.")
 
 
-#BM25-indeks
-# Konverter kolonnen til liste av tokenlister
-tokenized_text_bm25 = chunks["bm25_tokens"].tolist()
-bm25 = BM25Okapi(tokenized_text_bm25)
-
-#BERT (nb-sbert)
-model_bert = SentenceTransformer("NbAiLab/nb-sbert-base")
-tokenized_text_bert = chunks["text_clean"].tolist()
-
-embeddings = model_bert.encode(
-    tokenized_text_bert,
-    batch_size=32,
-    show_progress_bar=True,
-    normalize_embeddings=True  # praktisk for kosinus-similarity
-)
+if __name__ == "__main__":
+    main()

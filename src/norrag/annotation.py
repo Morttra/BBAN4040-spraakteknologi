@@ -5,7 +5,7 @@ remove duplicates, shuffle them and hide which retriever found each chunk ("blin
 labels every (question, chunk) pair as relevant (1) or not (0), following annotations/README.md.
 
 What goes here:
-- sample_questions(questions, n, seed) -> DataFrame: a random sample spread over nb/nn and quiz topics.
+- sample_questions(questions, n, seed) -> DataFrame: a random sample spread over the quiz topics.
 - pool_chunks(runs, qids, k) -> DataFrame: every chunk that is in some retriever's top k.
 - write_sheets(pool, questions, chunks, out_dir, annotators): one blind CSV per annotator to fill in
   (item_id, question, correct answer, chunk text, empty `relevant` column) and a separate key.csv

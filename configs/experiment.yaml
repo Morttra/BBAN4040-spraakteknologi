@@ -4,12 +4,11 @@
 seed: 42
 
 data:
-  languages: [nb, nn]                 # Northern Sámi is not used
+  languages: [nb]                     # Bokmål only: Nynorsk and Northern Sámi are not used
   nrk_quiz: ltg/nrk_quiz_qa           # Hugging Face dataset id
-  nrk_quiz_revision: v2.0             # pinned version: 4,790 questions (v1.0, used in the NorEval paper, had 4,930)
-  wikipedia_urls:                     # Wikimedia Enterprise HTML dumps of 20 March 2025, articles only
+  nrk_quiz_revision: v2.0             # pinned version: 3,516 Bokmål questions (4,790 with Nynorsk)
+  wikipedia_urls:                     # Wikimedia Enterprise HTML dump of 20 March 2025, articles only
     nb: https://dumps.wikimedia.org/other/enterprise_html/runs/20250320/nowiki-NS0-20250320-ENTERPRISE-HTML.json.tar.gz
-    nn: https://dumps.wikimedia.org/other/enterprise_html/runs/20250320/nnwiki-NS0-20250320-ENTERPRISE-HTML.json.tar.gz
 
 chunking:
   max_words: 100          # DECISION: chunk size in words
@@ -17,20 +16,23 @@ chunking:
   add_title: true          # DECISION: start every chunk with the article title (true/false)
 
 retrieval:
-  query_mode: null         # DECISION: full, last_sentence or with_options
+  query_mode: full         # the whole question text (other modes: last_sentence, with_options)
   top_n: 20                # chunks saved per question in the run files
   retrievers: [bm25, dense]       # BM25 chosen over TF-IDF (see docs/decisions.md)
-  dense_model: NbAiLab/nb-sbert-v2-base        # DECISION: e.g. NbAiLab/nb-sbert-base or NbAiLab/nb-sbert-v2-base
+  bm25_k1: 1.5             # BM25 settings: the usual defaults
+  bm25_b: 0.75
+  dense_model: NbAiLab/nb-sbert-v2-base   # reads up to 512 tokens (nb-sbert-base only 75)
+  dense_batch_size: 16     # texts embedded at once; 16 was fastest on the M1 Max GPU (about 180 chunks/s)
 
 qa:
   k: null                  # DECISION: number of retrieved chunks in the prompt
   scoring: null            # DECISION: option_text (NorEval p0/p1) or option_letter (p2/p3)
   prompt_template: null    # DECISION: name of a template in src/norrag/prompts.py
   chat_template: null      # DECISION: wrap prompts in the models' chat format (true/false)
+  # 12B only. Main comparison: borealis-12b without retrieval vs gemma-12b with the retriever chosen
+  # in the retrieval evaluation (BM25 or sentence-BERT); gemma-12b without retrieval is a reference.
   models:                  # revision: the commit hash that was run, filled in for reproducibility
-    gemma-4b:     {id: google/gemma-3-4b-it,  revision: null}
     gemma-12b:    {id: google/gemma-3-12b-it, revision: null}
-    borealis-4b:  {id: NbAiLab/borealis-4b,   revision: null}
     borealis-12b: {id: NbAiLab/borealis-12b,  revision: null}
 
 annotation:

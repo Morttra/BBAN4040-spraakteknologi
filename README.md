@@ -1,7 +1,7 @@
 # BBAN4040-spraakteknologi
 Course project in the course BBAN4040 Språkteknologi at NTNU Handelshøyskolen.
 
-We compare how well small language models answer questions about Norwegian history and culture (NRK-Quiz-QA) under three conditions: Gemma 3 without retrieval, Borealis (Gemma 3 adapted to Norwegian) without retrieval, and Gemma 3 with retrieval over Norwegian Wikipedia (RAG), at 4B and 12B.
+We compare fine-tuning and retrieval as two ways of making a language model better at questions about Norwegian history and culture (the Bokmål part of NRK-Quiz-QA): Borealis 12B (Gemma 3 fine-tuned on Norwegian instructions) without retrieval against Gemma 3 12B with retrieval over Bokmål Wikipedia (RAG). Gemma 3 12B without retrieval is included as a reference.
 
 ## Project structure
 
@@ -23,7 +23,7 @@ We compare how well small language models answer questions about Norwegian histo
 │   ├── pipeline.py              Runs one condition end to end
 │   ├── annotation.py            Evaluation layer 1: blind human annotation sheets
 │   ├── judge.py                 Evaluation layer 2: LLM judge
-│   └── metrics.py               Accuracy, hit@k, MRR@k, kappa, error breakdown
+│   └── metrics.py               Accuracy, hit@k, MRR@k, confidence intervals, McNemar, kappa, error breakdown
 ├── scripts/                     Long-running pipeline steps, run in order 01 → 08
 ├── notebooks/
 │   ├── 00_main.ipynb            MAIN NOTEBOOK: all results in the report
@@ -44,7 +44,7 @@ Blue boxes are scripts you run, grey shapes are files they write, green boxes ar
 ```mermaid
 flowchart TD
     NRK[("NRK-Quiz-QA<br/>Hugging Face")]
-    WIKI[("Norwegian Wikipedia, March 2025<br/>Wikimedia HTML dumps")]
+    WIKI[("Bokmål Wikipedia, March 2025<br/>Wikimedia HTML dump")]
 
     NRK --> S01
     WIKI --> S01
@@ -56,7 +56,7 @@ flowchart TD
     I --> S04
     S04 --> R[/"run files: top-20 chunks per question"/]
 
-    Q --> S05["05_run_qa.py<br/>Gemma and Borealis, 4B and 12B,<br/>with and without retrieved chunks"]
+    Q --> S05["05_run_qa.py<br/>Borealis and Gemma 12B,<br/>with and without retrieved chunks"]
     C --> S05
     R --> S05
     S05 --> QA[/"QA results"/]
@@ -102,5 +102,5 @@ TODO
 
 ## Data and licences
 
-- NRK-Quiz-QA v2.0 ([ltg/nrk_quiz_qa](https://huggingface.co/datasets/ltg/nrk_quiz_qa)), MIT licence.
-- Norwegian Wikipedia (Bokmål and Nynorsk) as of 20 March 2025, from the [Wikimedia Enterprise HTML dumps](https://dumps.wikimedia.org/other/enterprise_html/), CC BY-SA 3.0. See [data/README.md](data/README.md) for why this dump and how the pages are turned into text.
+- NRK-Quiz-QA v2.0 ([ltg/nrk_quiz_qa](https://huggingface.co/datasets/ltg/nrk_quiz_qa)), Bokmål questions only, MIT licence.
+- Norwegian Wikipedia (Bokmål) as of 20 March 2025, from the [Wikimedia Enterprise HTML dumps](https://dumps.wikimedia.org/other/enterprise_html/), CC BY-SA 3.0. See [data/README.md](data/README.md) for why this dump and how the pages are turned into text.

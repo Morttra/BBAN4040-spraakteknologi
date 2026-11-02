@@ -1,8 +1,8 @@
-"""Download Norwegian Wikipedia (Bokmål and Nynorsk) and clean the articles into a corpus ready for chunking.
+"""Download Norwegian Wikipedia (Bokmål) and clean the articles into a corpus ready for chunking.
 
 Source: Wikimedia Enterprise HTML dumps of 20 March 2025 (https://dumps.wikimedia.org/other/enterprise_html/),
-nowiki (Bokmål, 6.2 GB) and nnwiki (Nynorsk, 1.1 GB), articles only (namespace 0). Licence: CC BY-SA 3.0
-(as stated in each record).
+nowiki (Bokmål, 6.2 GB), articles only (namespace 0). Licence: CC BY-SA 3.0 (as stated in each record).
+The code also handles other language editions such as nnwiki (Nynorsk), which the project does not use.
 Each file is a .tar.gz holding several .ndjson files with one JSON record per page; the text is the
 rendered page as HTML (article_body.html), so numbers written with Wikipedia templates are included.
 The full conversion rules are documented in data/README.md.
@@ -25,6 +25,7 @@ long articles are kept.
 
 import json
 import re
+import shutil
 import tarfile
 import urllib.request
 from pathlib import Path
@@ -32,6 +33,10 @@ from pathlib import Path
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+
+# Wikimedia refuses downloads from Python's default name ("Python-urllib/3.x") with 403 Forbidden and
+# asks scripts to say who they are, so every download names the project
+USER_AGENT = "norrag/0.1 (https://github.com/Morttra/BBAN4040-spraakteknologi; NTNU BBAN4040 student project)"
 
 # Parts of a page that are removed before reading the text (CSS selectors: tag names, or .class names)
 DROP_SELECTORS = [
@@ -134,7 +139,9 @@ def download_file(url, dest_dir):
     if not path.exists():
         print(f"Downloading {url} ...")
         partial = path.with_name(path.name + ".part")  # download under a temporary name ...
-        urllib.request.urlretrieve(url, partial)
+        request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(request) as response, open(partial, "wb") as f:
+            shutil.copyfileobj(response, f)  # copy the download to the file piece by piece
         partial.rename(path)  # ... and rename only when complete, so a broken download is never mistaken for a finished one
     return path
 

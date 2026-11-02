@@ -13,6 +13,6 @@ The wording must be identical for Gemma and Borealis; only the context part diff
 NorEval's own NRK-Quiz-QA prompts (lm-evaluation-harness, lm_eval/tasks/noreval/nrk_quiz_qa/*/utils.py)
 are a good starting point; credit them if you reuse them.
 Used by: pipeline.py.
-Decisions (`qa`): the template wording (e.g. Nynorsk wording for Nynorsk questions?), how the chunks
+Decisions (`qa`): the template wording, how the chunks
 are introduced, and k, the number of chunks in the prompt.
 """

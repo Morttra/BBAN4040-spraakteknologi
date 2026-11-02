@@ -1,16 +1,14 @@
-"""Download NRK-Quiz-QA and Norwegian Wikipedia (nb + nn) and save cleaned copies under data/processed/.
+"""Download NRK-Quiz-QA and Norwegian Wikipedia (Bokmål) and save cleaned copies under data/processed/.
 
-Steps:
+Steps, for each language in `data.languages` (only "nb" in this project):
 1. Load the NRK-Quiz-QA questions (norrag.data.nrk_quiz) and save them.
-2. Download the Wikipedia dumps into data/raw/ (7.4 GB, done once), turn every page's HTML into clean
-   text (norrag.data.wikipedia) and save Bokmål and Nynorsk together as one table.
+2. Download the Wikipedia dump into data/raw/ (6.2 GB, done once), turn every page's HTML into clean
+   text (norrag.data.wikipedia) and save it as one table.
 
-Reads:  Hugging Face (ltg/nrk_quiz_qa, v2.0) and the Wikimedia Enterprise HTML dumps of 20 March 2025
+Reads:  Hugging Face (ltg/nrk_quiz_qa, v2.0) and the Wikimedia Enterprise HTML dump of 20 March 2025
 Writes: data/processed/questions.parquet, data/processed/articles.parquet
-Run:    python scripts/01_prepare_data.py      (download time, plus roughly 80 minutes of conversion)
+Run:    python scripts/01_prepare_data.py      (download time, plus roughly an hour of conversion)
 """
-
-import urllib.request
 
 import pandas as pd
 
@@ -20,11 +18,6 @@ from norrag.data.wikipedia import download_file, load_wikipedia
 
 
 def main():
-    # Wikimedia blocks Python's default User-Agent ("Python-urllib/3.x") with 403 Forbidden, so name the project
-    opener = urllib.request.build_opener()
-    opener.addheaders = [("User-Agent", "norrag/0.1 (https://github.com/Morttra/BBAN4040-spraakteknologi; NTNU BBAN4040 student project)")]
-    urllib.request.install_opener(opener)
-
     config = load_config()
     data = config["data"]
     processed = get_path(config, "data_processed")
