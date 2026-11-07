@@ -25,20 +25,23 @@ retrieval:
   dense_batch_size: 16     # texts embedded at once; 16 was fastest on the M1 Max GPU (about 180 chunks/s)
 
 qa:
-  k: null                  # DECISION: number of retrieved chunks in the prompt
-  scoring: null            # DECISION: option_text (NorEval p0/p1) or option_letter (p2/p3)
-  prompt_template: null    # DECISION: name of a template in src/norrag/prompts.py
-  chat_template: null      # DECISION: wrap prompts in the models' chat format (true/false)
+  k: 5                     # retrieved chunks in the prompt; same as annotation.pool_k, so the hand labels cover them
+  scoring: option_letter   # score the option letter (NorEval p3): the model sees all options, one token per option
+  prompt_template: noreval_p3   # name of a template in src/norrag/prompts.py: NorEval's p3, with our instruction before it
+  chat_template: true      # the prompt as a user message, "Svar:" as the start of the model's reply; with the instruction,
+                           # 93-100 % of the probability lands on the letters (Gemma with dense chunks: 89.8 %), and with
+                           # chunks plain text did not get there (format check on 50 questions, 2026-11-06 and 2026-11-07)
   # 12B only. Main comparison: borealis-12b without retrieval vs gemma-12b with the retriever chosen
   # in the retrieval evaluation (BM25 or sentence-BERT); gemma-12b without retrieval is a reference.
-  models:                  # revision: the commit hash that was run, filled in for reproducibility
-    gemma-12b:    {id: google/gemma-3-12b-it, revision: null}
-    borealis-12b: {id: NbAiLab/borealis-12b,  revision: null}
+  models:                  # revision: the exact commit hash on Hugging Face (models.model_revision), pinned 2026-11-05
+    gemma-12b:    {id: google/gemma-3-12b-it, revision: 96b6f1eccf38110c56df3a15bffe176da04bfd80}
+    borealis-12b: {id: NbAiLab/borealis-12b,  revision: 4c935c063adebe914df662c6ce22c1cb5de1a9fe}
 
 annotation:
-  n_questions: null        # DECISION: questions in the hand-labelled sample
+  n_questions: 50          # questions in the hand-labelled sample: about 9 chunks each, so about 460 pairs per annotator
+  seed: 2026               # own seed: with 42, 46 of the 50 were the questions from the format check, which we had seen
   pool_k: 5                # top-k chunks from each retriever pooled for labelling
-  annotators: [a, b]       # one blind sheet per person
+  annotators: [m, n]       # one blind sheet per person
 
 judge:
   model: null              # DECISION: OpenAI model used as judge (not a Gemma model)
@@ -48,8 +51,8 @@ demo:
   n_questions: 20
   retriever: bm25
   models:
-    gemma:    {id: google/gemma-3-270m-it, revision: null}
-    borealis: {id: NbAiLab/borealis-270m,  revision: null}
+    gemma:    {id: google/gemma-3-270m-it, revision: ac82b4e820549b854eebf28ce6dedaf9fdfa17b3}
+    borealis: {id: NbAiLab/borealis-270m,  revision: 3d89ebd0b86906bfe669591e29beaf000476a8b7}
 
 paths:
   data_raw: data/raw

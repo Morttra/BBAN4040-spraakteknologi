@@ -12,6 +12,6 @@ What goes here:
   (records.done_ids) and append each judgement as it arrives, so a crash loses nothing.
 
 Uses the OpenAI key in .env (config.get_secret). Every call costs a little money.
-Used by: scripts/07_run_judge.py.
+Used by: scripts/06_run_judge.py.
 Decision (`judge`): which judge model; not a Gemma model, so it does not judge its own family.
 """

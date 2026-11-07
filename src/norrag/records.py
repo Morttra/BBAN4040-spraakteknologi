@@ -3,7 +3,7 @@
 JSONL means one JSON object per line. New lines can be appended as results come in, so a long run that
 stops can continue where it left off, and you can open the file in VS Code and read it.
 
-Used by: scripts 04, 05 and 07, and the notebooks that read results.
+Used by: scripts 04–07, and the notebooks that read results.
 """
 
 import json

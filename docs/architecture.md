@@ -4,11 +4,13 @@ Step-by-step guide to how the code is organised, how the files connect and in wh
 
 Start with the flowchart in the [README](../README.md#how-the-pipeline-fits-together); this page explains it.
 
-## The project in three stages
+## The project in three parts
 
 1. **Prepare** (scripts 01–03, run once): fetch the quiz questions and Wikipedia, cut Wikipedia into chunks and build one search index per retriever.
-2. **Experiment** (04–05): find the top chunks for every question, then let each model score the answer options with and without those chunks.
-3. **Evaluate** (06–07 and the notebooks): check how good the retrieved chunks are, using your own labels and the LLM judge, then turn all results into tables and figures.
+2. **Stage 1, compare the retrievers** (04–06): find the top chunks for every question, then check how good they are, using your own labels (05) and the LLM judge (06), and choose one retriever.
+3. **Stage 2, compare the models** (07): let each model score the answer options, Borealis and Gemma without chunks and Gemma with the chunks from the chosen retriever.
+
+The notebooks then turn all results into tables and figures.
 
 Every step reads files that an earlier step wrote and writes new files for the next one. That is why each step can be run, and rerun, on its own.
 
@@ -33,10 +35,11 @@ Every file starts with a few lines saying what goes in it, so open the file to r
 | 2 | `02_chunk_corpus.py` | `chunking.py` | `articles.parquet` | `data/processed/chunks.parquet` |
 | 3 | `03_build_indexes.py` | `retrieval/` (`base`, `text`, `bm25`, `dense`) | `chunks.parquet` | `data/indexes/<retriever>/` |
 | 4 | `04_retrieve.py` | `retrieval/query.py`, `retrieval/base.py`, `records.py` | questions, indexes | `results/raw/runs/<retriever>.jsonl` |
-| 5 | `05_run_qa.py` | `models.py`, `pipeline.py` (which uses `prompts.py` and `scoring.py`), `records.py` | questions, chunks, run files | `results/raw/qa/<model>__<condition>.jsonl` |
-| 6 | `06_make_annotation_sample.py` | `annotation.py` | questions, chunks, run files | `annotations/sheet_<name>.csv`, `annotations/key.csv` |
+| 5 | `05_make_annotation_sample.py` | `annotation.py`, `records.py` | questions, chunks, run files | `annotations/sheet_<name>.xlsx`, `annotations/key.csv` |
 | – | You label the sheets by hand | | your sheet | the same sheet, `relevant` column filled in |
-| 7 | `07_run_judge.py` | `judge.py`, `records.py` | questions, chunks, run files, `key.csv` | `results/raw/judge/<judge model>.jsonl` |
+| 6 | `06_run_judge.py` | `judge.py`, `records.py` | questions, chunks, run files, `key.csv` | `results/raw/judge/<judge model>.jsonl` |
+| – | You choose the retriever | | labels and judge results, in `00_main.ipynb` | |
+| 7 | `07_run_qa.py` | `models.py`, `pipeline.py` (which uses `prompts.py` and `scoring.py`), `records.py` | questions, chunks, run files | `results/raw/qa/<model>__<condition>.jsonl` |
 | 8 | `08_make_demo_data.py` | `retrieval/` | questions, chunks, BM25 run file | `demo/data/` |
 | – | `notebooks/00_main.ipynb` | `metrics.py`, `annotation.py`, `records.py` | everything in `results/raw/` and `annotations/` | `results/tables/`, `results/figures/` |
 
@@ -48,12 +51,12 @@ The choices you have not made yet are marked `DECISION` in `configs/experiment.y
 
 | Setting | Rerun |
 |---|---|
-| `chunking` (size, overlap, title) | 02, 03, 04, 05 |
-| `retrieval.query_mode` | 04, 05 |
-| `retrieval.dense_model` | 03 and 04 for the dense retriever, then 05 |
-| `qa` (k, scoring, prompt template, chat template) | 05 |
-| `annotation` | 06, then label again |
-| `judge` | 07 |
+| `chunking` (size, overlap, title) | 02, 03, 04, then 05–07 (and label again) |
+| `retrieval.query_mode` | 04, then 05–07 (and label again) |
+| `retrieval.dense_model` | 03 and 04 for the dense retriever, then 05–07 (and label again) |
+| `annotation` | 05, then label again |
+| `judge` | 06 |
+| `qa` (k, scoring, prompt template, chat template) | 07 |
 
 Write each choice and the reason for it in `docs/decisions.md`. You need the reasons for M2 and for the method section.
 
@@ -75,17 +78,17 @@ The work splits into two tracks that you can do at the same time, one each, and 
 **Track B: models and scoring**
 1. `models.py`: load `google/gemma-3-270m-it` in a notebook and check that it runs. It is small and quick to download.
 2. `prompts.py` and `scoring.py`: score 20 questions in the notebook. The 270M model should land near chance and the 12B model clearly above it; if not, something is wrong.
-3. `pipeline.py` with `no_rag` only, then `05_run_qa.py --limit 200` for Gemma 12B and Borealis 12B.
+3. `pipeline.py` with `no_rag` only, then `07_run_qa.py --limit 200` for Gemma 12B and Borealis 12B.
 
 **Join: the first RAG run (before M2 on 27 October)**
-1. `05_run_qa.py --condition rag_bm25 --limit 200`.
+1. `07_run_qa.py --condition rag_bm25 --limit 200`.
 2. `metrics.accuracy` and a first table in `00_main.ipynb`: Gemma, Borealis and Gemma + BM25 on the same 200 questions. That is a solid M2 status.
 
 **After M2**
 1. `retrieval/dense.py` (sentence-BERT), then `03` and `04` for the dense retriever.
-2. Write the annotation guideline in `annotations/README.md`, then `annotation.py` and `06`, and label your sheets.
-3. `judge.py` and `07` on the hand-labelled sample, check the agreement, then run it on more chunks.
-4. Full `05` runs overnight: Borealis and Gemma without retrieval, then Gemma with the retriever chosen in the retrieval evaluation.
+2. Write the annotation guideline in `annotations/README.md`, then `annotation.py` and `05`, and label your sheets.
+3. `judge.py` and `06` on the hand-labelled sample, check the agreement, then run it on more chunks.
+4. Full `07` runs overnight: Borealis and Gemma without retrieval, then Gemma with the retriever chosen in the retrieval evaluation.
 
 **Final weeks (deadline 18 November)**
 1. Finish `metrics.py` and `tests/test_metrics.py`, so that `00_main.ipynb` produces every table and figure.

@@ -10,7 +10,7 @@ Run:    python scripts/04_retrieve.py                        both retrievers in 
         python scripts/04_retrieve.py --limit 50             a test on the first 50 questions
                                                              (saved as <retriever>_limit50.jsonl)
 
-The run files feed 05 (chunks for the prompts), 06 (annotation), 07 (judge) and 08 (demo).
+The run files feed 05 (annotation), 06 (judge), 07 (chunks for the prompts) and 08 (demo).
 How good the retrieved chunks are is measured later, with norrag.metrics, from these run files and the labels.
 """
 

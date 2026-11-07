@@ -1,6 +1,6 @@
 """Run one experimental condition (model x retrieval setting) over a set of questions: retrieve, build the prompt, score the options and log the result.
 
-This is the heart of the project: scripts/05_run_qa.py calls it for the full runs and the demo calls
+This is the heart of the project: scripts/07_run_qa.py calls it for the full runs and the demo calls
 it on 20 questions, so both run exactly the same method.
 
 What goes here:
@@ -14,5 +14,5 @@ What goes here:
 - Conditions: "no_rag" (Gemma or Borealis without context) and "rag_bm25", "rag_dense"
   (Gemma with the chunks from that retriever).
 
-Used by: scripts/05_run_qa.py, demo/demo.ipynb.
+Used by: scripts/07_run_qa.py, demo/demo.ipynb.
 """

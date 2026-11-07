@@ -56,14 +56,17 @@ flowchart TD
     I --> S04
     S04 --> R[/"run files: top-20 chunks per question"/]
 
-    Q --> S05["05_run_qa.py<br/>Borealis and Gemma 12B,<br/>with and without retrieved chunks"]
-    C --> S05
-    R --> S05
-    S05 --> QA[/"QA results"/]
-
-    R --> S06["06_make_annotation_sample.py"] --> SH[/"blind annotation sheets"/]
+    R --> S05["05_make_annotation_sample.py"] --> SH[/"blind annotation sheets"/]
     SH --> H{{"we label the chunks"}} --> L[/"human labels"/]
-    R --> S07["07_run_judge.py"] --> J[/"LLM-judge labels"/]
+    R --> S06["06_run_judge.py"] --> J[/"LLM-judge labels"/]
+    L --> CH{{"we choose the retriever"}}
+    J --> CH
+
+    Q --> S07["07_run_qa.py<br/>Borealis and Gemma 12B without chunks,<br/>Gemma with the chosen retriever"]
+    C --> S07
+    R --> S07
+    CH --> S07
+    S07 --> QA[/"QA results"/]
 
     QA --> M["00_main.ipynb"]
     R --> M
@@ -80,7 +83,7 @@ flowchart TD
     class S01,S02,S03,S04,S05,S06,S07,S08 script
     class Q,A,C,I,R,QA,SH,L,J,OUT,D file
     class M,DEMO notebook
-    class H manual
+    class H,CH manual
 ```
 
 ## Setup
