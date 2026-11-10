@@ -44,8 +44,9 @@ annotation:
   annotators: [m, n]       # one blind sheet per person
 
 judge:
-  model: null              # DECISION: OpenAI model used as judge (not a Gemma model)
-  temperature: 0
+  provider: anthropic      # anthropic or openai; the key goes in .env (ANTHROPIC_API_KEY or OPENAI_API_KEY)
+  model: claude-sonnet-5-5 # not a Gemma model, so it does not judge its own family; chosen 2026-11-07
+                           # (no temperature setting: newer models reject it; every reply is logged instead)
 
 demo:
   n_questions: 20

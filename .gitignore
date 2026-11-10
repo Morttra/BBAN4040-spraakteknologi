@@ -228,7 +228,9 @@ data/*
 !data/README.md
 
 # Per-question experiment logs are large and regenerable; tables/ and figures/ are committed.
-results/raw/
+# Exception: the judge's labels cost money to regenerate and are small (a few MB), so they are committed.
+results/raw/*
+!results/raw/judge/
 
 # Model weights and caches never belong in the repo.
 *.safetensors

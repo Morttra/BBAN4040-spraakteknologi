@@ -28,6 +28,7 @@ dependencies = [
     "transformers>=4.50",
     "accelerate",
     "openai",
+    "anthropic",
     "openpyxl",
     "matplotlib",
     "jupyter",

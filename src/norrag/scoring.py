@@ -39,3 +39,8 @@ def option_logprobs(model, tokenizer, prompt, labels, chat_template=True):
         logits = model(**inputs.to(model.device), logits_to_keep=1).logits[0, -1]
     log_probs = torch.log_softmax(logits.float(), dim=-1)  # one log-probability per token in the vocabulary
     return [log_probs[ids[0]].item() for ids in letter_ids]
+
+
+def predict(logprobs):
+    """Index of the option with the highest log-probability: 0 for A, 1 for B, and so on."""
+    return max(range(len(logprobs)), key=lambda i: logprobs[i])  # on an exact tie, the first option wins
