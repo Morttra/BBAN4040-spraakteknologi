@@ -29,7 +29,7 @@ from sklearn.metrics import confusion_matrix
 def hit_at_k(retrieved_ids, relevant_ids, k):
     """1 if at least one relevant chunk is among the top k, else 0. The main retrieval metric."""
     return 1.0 if set(retrieved_ids[:k]) & set(relevant_ids) else 0.0
-
+    
 
 def mrr_at_k(retrieved_ids, relevant_ids, k):
     """1/rank of the first relevant chunk in the top k (1 if it is first, 0.5 if second, ...), or 0 if none."""
