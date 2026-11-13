@@ -1,0 +1,3 @@
+retrieval,"Borealis, no retrieval","Gemma, no retrieval",Gemma + bm25,questions
+relevant chunk in top k,0.6501547987616099,0.6455108359133127,0.9736842105263158,1292
+no relevant chunk,0.5328237410071942,0.5445143884892086,0.5134892086330936,2224

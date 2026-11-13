@@ -37,3 +37,7 @@ Should McNemar give p > 0.05 MRR@k will be used to seperate the two. MRR@k score
 After running the LLM judge it was discovered that BM25 was the best alternative of the two, even though it was not a huge difference. By using hit@5 as planned and 95% CI intervals and doing the McNemar test it was already decided in accordance with the rules set above. If it would have taken MRR@5 into account that would have pointed the same direction. 
 So the chosen retriever is BM25.
 It is noteworthy that the overall hit-rate is fairly low for both models, about 36 %. 
+
+# BM25 results:
+It is noted that BM25 had 98 questions of which the probability for the next token being one of the options to the questions was below 50 %. In comparison, Gemma, no RAG has 1 of these, and Borealis has none. Our model also have substantially more questions below the 90 % threshold. 
+We accept this as a sign of a weakness of our model and suggest a deeper look into the cause as future work.

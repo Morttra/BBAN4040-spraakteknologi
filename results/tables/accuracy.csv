@@ -1,0 +1,5 @@
+condition,questions,correct,accuracy,ci_low,ci_high
+"Borealis, no retrieval",3516,2025,0.576,0.559,0.591
+"Gemma, no retrieval",3516,2045,0.582,0.565,0.598
+Gemma + bm25,3516,2400,0.683,0.668,0.697
+Chance (guessing),3516,,0.283,,
