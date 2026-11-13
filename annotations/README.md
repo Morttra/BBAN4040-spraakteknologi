@@ -15,6 +15,8 @@ are used to compare the retrievers and to check the LLM judge (layer 2), which u
 
 Both are written by `scripts/05_make_annotation_sample.py`.
 
+- `resolved.csv`: the agreed label for each row where the two of you disagreed (see Disagreements).
+
 ## What counts as relevant
 
 - **1 (relevant):** the chunk states the answer to this question, or lets you work it out with a
@@ -44,5 +46,7 @@ about the topic yourself doesn't count. The article title at the start of the ch
 
 ## Disagreements
 
-DECISION: how rows where the two of you disagree get their final label. Decide this before you
-compare the sheets.
+Rows where the two of you disagree are discussed after both sheets are done and Cohen's kappa is
+calculated. The agreed label goes in `resolved.csv` (item_id, relevant, reason). The sheets stay as
+they were, so kappa is always calculated on the independent labels. `norrag.annotation.final_labels`
+uses the shared label where you agreed and `resolved.csv` where you did not.

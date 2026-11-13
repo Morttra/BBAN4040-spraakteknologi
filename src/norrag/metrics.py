@@ -8,13 +8,12 @@ What goes here:
 - Uncertainty: bootstrap_ci(values) gives a 95 % confidence interval for a score computed from
   per-question values (accuracy, hit@k, MRR, or the difference between two systems);
   mcnemar_test(correct_a, correct_b) tells whether two systems answering the same questions really differ.
-- Judge validation: judge_confusion(human, judge) puts the judge's labels against the human labels in
-  a 2x2 table, showing whether the judge is too generous or too strict.
+- Agreement: cohens_kappa(labels_a, labels_b) is agreement beyond chance, between the two of you or
+  between the judge and you; judge_confusion(human, judge) puts the judge's labels against the human
+  labels in a 2x2 table, showing whether the judge is too generous or too strict.
 - Still to come (each takes pandas DataFrames and returns a number or a table):
   accuracy(qa) and accuracy_by(qa, ["model", "condition", "language"]);
   chance_accuracy(questions): the expected score from guessing, not 25 %, because the number of options varies;
-  cohens_kappa(labels_a, labels_b): agreement beyond chance, between the two of you or between the judge
-  and you (sklearn.metrics.cohen_kappa_score does the maths);
   error_breakdown(qa, hits): each question as retrieval hit/miss x answer right/wrong.
 
 Used by: notebooks/00_main.ipynb, tests/test_metrics.py.
@@ -23,7 +22,7 @@ Used by: notebooks/00_main.ipynb, tests/test_metrics.py.
 import numpy as np
 import pandas as pd
 from scipy.stats import binomtest
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import cohen_kappa_score, confusion_matrix
 
 
 def hit_at_k(retrieved_ids, relevant_ids, k):
@@ -71,6 +70,17 @@ def mcnemar_test(correct_a, correct_b):
         return only_a, only_b, 1.0
     p_value = binomtest(only_a, only_a + only_b, 0.5).pvalue
     return only_a, only_b, float(p_value)
+
+
+def cohens_kappa(labels_a, labels_b):
+    """Agreement between two raters beyond what chance would give: 1 is perfect, 0 no better than chance.
+
+    labels_a and labels_b hold one label per item, in the same order: the two annotators, or the judge
+    and the final human labels. Plain agreement can look high just because most chunks are not
+    relevant; kappa subtracts the agreement two raters would reach by guessing with the same shares of
+    1s and 0s: kappa = (agreement - chance agreement) / (1 - chance agreement).
+    """
+    return float(cohen_kappa_score(np.asarray(labels_a, dtype=int), np.asarray(labels_b, dtype=int)))
 
 
 def judge_confusion(human, judge):

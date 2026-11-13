@@ -19,6 +19,9 @@ What goes here:
 - load_labels(sheet_paths, key_path) -> DataFrame: the filled-in sheets, one row per (annotator, item),
   joined back to qid, chunk_id and retrievers through the key. Stops with a message naming the rows
   if a label is missing or not 1 or 0, or if rows were deleted or added.
+- final_labels(labels, resolved_path) -> DataFrame: one label per item (columns item_id, qid, chunk_id,
+  retrievers, relevant): the shared label where the annotators agree, the decision in
+  annotations/resolved.csv where they don't. Kappa uses `labels`; the retriever scores use these.
 
 Used by: scripts/05_make_annotation_sample.py, notebooks/00_main.ipynb.
 """
@@ -108,3 +111,16 @@ def load_labels(sheet_paths, key_path):
         labels.append(sheet.assign(annotator=annotator, relevant=sheet.relevant.astype(int)))
     columns = ["annotator", "item_id", "qid", "chunk_id", "retrievers", "relevant", "comment"]
     return pd.concat(labels).merge(key, on="item_id")[columns]
+
+
+def final_labels(labels, resolved_path):
+    """One label per item: the shared label where the annotators agree, the decision in resolved.csv where they don't."""
+    by_annotator = labels.pivot(index="item_id", columns="annotator", values="relevant")  # one column per annotator
+    agreed = by_annotator.nunique(axis=1) == 1  # True where everyone gave the same label
+    resolved = pd.read_csv(resolved_path).set_index("item_id")["relevant"]
+    missing = sorted(set(by_annotator.index[~agreed]) - set(resolved.index))
+    if missing:
+        raise ValueError(f"No decision in {resolved_path} for the disagreements on item_id {missing}")
+    final = by_annotator.iloc[:, 0].where(agreed, resolved).astype(int)  # where they disagree, take the decision
+    items = labels.drop_duplicates("item_id").set_index("item_id")[["qid", "chunk_id", "retrievers"]]
+    return items.assign(relevant=final).reset_index()
