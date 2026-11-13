@@ -1,4 +1,4 @@
 condition,questions,mean,median,minimum,below 90 %,below 50 %,passes
 "Borealis, no retrieval",3516,0.968,0.975,0.645,75,0,True
 "Gemma, no retrieval",3516,0.999,1.0,0.474,2,1,True
-Gemma + bm25,3516,0.965,0.999,0.001,217,98,True
+Gemma + BM25,3516,0.965,0.999,0.001,217,98,True
