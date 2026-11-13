@@ -25,9 +25,10 @@ After further testing it was revealed that frasing the sentence "Bakgrunn fra Wi
 
 # LLM judge trustworthiness consideration:
 Accuracy, nr of indices in agreement with human labels / number of indices total. The higher the better.
-For the 469 chunk test set agreement was 461/469 = 98%, which makes us confident that Sonnet can handle judging the rest of the chunks
+For the 469 chunk test set agreement was 463/469 = 98.7%, which makes us confident that Sonnet can handle judging the rest of the chunks
 
 # Retriever selection rules:
-The basis for retriever selection is performance on hit@k. It is deemed most relevant as it scores 1 if one of the k chunks is relevant and 0 if not.
-In addition McNemar wil be used to confirm the results as genuine, not something likely to have happend by chance (wo-sided, α = 0.05). p<0.05 means hit@k decides. 
-Should there be a close race MRR@k will be used to seperate the two. MRRK scores the position of the first relevant chunk of k chunks. 
+In this process k = 5. The judge's labels for all 3,516 questions are used to judge each retrievers retrieved chunks.
+The basis for the retriever selection is performance on hit@k. It is deemed most relevant as it scores 1 if one of the k chunks is relevant and 0 if not.
+In addition McNemar wil be used to confirm the results as genuine, not something likely to have happend by chance (two-sided, α = 0.05). p<0.05 means hit@k decides. 
+Should McNemar give p > 0.05 MRR@k will be used to seperate the two. MRR@k scores the position of the first relevant chunk of k chunks. If one modeles MRR@k score is less than 10% higher than that of the other the decision is deemed inconclusive. In this case the choice defaults to BM25 on the grounds that it is a less compute demanding method.
