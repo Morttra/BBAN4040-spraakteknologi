@@ -1,0 +1,5 @@
+comparison,chunks,agree,agreement,kappa
+m vs n,469,467,0.996,0.98
+judge vs final labels,469,463,0.987,0.937
+judge vs m,469,462,0.985,0.927
+judge vs n,469,464,0.989,0.948

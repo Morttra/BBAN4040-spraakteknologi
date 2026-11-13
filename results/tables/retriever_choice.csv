@@ -1,0 +1,13 @@
+,value
+questions,3516
+only bm25 hits,374
+only dense hits,313
+mcnemar_p,0.02200259468936554
+hit@5 bm25 - dense,0.017349260523321957
+hit@5 ci_low,0.002559726962457338
+hit@5 ci_high,0.030716723549488054
+MRR@5 bm25 - dense,0.026170838073568445
+MRR@5 ci_low,0.012716154721274178
+MRR@5 ci_high,0.03790410504361016
+deciding_metric,hit@5
+chosen,bm25

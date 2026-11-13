@@ -1,0 +1,9 @@
+labels,questions,retriever,metric,score,ci_low,ci_high
+judge,3516,bm25,hit@5,0.367,0.352,0.383
+judge,3516,bm25,MRR@5,0.284,0.27,0.298
+judge,3516,dense,hit@5,0.35,0.336,0.366
+judge,3516,dense,MRR@5,0.258,0.244,0.271
+ours,50,bm25,hit@5,0.36,0.24,0.5
+ours,50,bm25,MRR@5,0.272,0.167,0.392
+ours,50,dense,hit@5,0.38,0.26,0.52
+ours,50,dense,MRR@5,0.287,0.18,0.404

@@ -32,3 +32,8 @@ In this process k = 5. The judge's labels for all 3,516 questions are used to ju
 The basis for the retriever selection is performance on hit@k. It is deemed most relevant as it scores 1 if one of the k chunks is relevant and 0 if not.
 In addition McNemar wil be used to confirm the results as genuine, not something likely to have happend by chance (two-sided, α = 0.05). p<0.05 means hit@k decides. 
 Should McNemar give p > 0.05 MRR@k will be used to seperate the two. MRR@k scores the position of the first relevant chunk of k chunks. If one modeles MRR@k score is less than 10% higher than that of the other the decision is deemed inconclusive. In this case the choice defaults to BM25 on the grounds that it is a less compute demanding method.
+
+# Retriever decision:
+After running the LLM judge it was discovered that BM25 was the best alternative of the two, even though it was not a huge difference. By using hit@5 as planned and 95% CI intervals and doing the McNemar test it was already decided in accordance with the rules set above. If it would have taken MRR@5 into account that would have pointed the same direction. 
+So the chosen retriever is BM25.
+It is noteworthy that the overall hit-rate is fairly low for both models, about 36 %. 
