@@ -10,9 +10,13 @@ Run:    python scripts/06_run_judge.py --sample            the 469 chunks you la
         python scripts/06_run_judge.py --sample --limit 5  a test on 5 of them
         python scripts/06_run_judge.py                     every pooled chunk for every question,
                                                            one call at a time (about 13 hours)
+        python scripts/06_run_judge.py --batch             the same through the Message Batches API:
+                                                           half the price, results within 24 hours
 
 This costs money: check the cost of a small run before starting a large one. Pairs already judged are
 skipped, so a stopped run continues where it left off, and the --sample judgements are reused later.
+With --batch, the batch id waits in results/raw/judge/<judge model>.batch.json until the results are
+saved: if the script is stopped while it waits, run the same command again to pick up the same batch.
 """
 
 import argparse
@@ -21,7 +25,7 @@ import pandas as pd
 
 from norrag.annotation import pool_chunks
 from norrag.config import get_path, load_config
-from norrag.judge import JUDGE_PROMPT, JUDGE_SCHEMA, judge_many, make_client
+from norrag.judge import JUDGE_PROMPT, JUDGE_SCHEMA, judge_batch, judge_many, make_client
 from norrag.records import read_jsonl_df, write_meta
 
 
@@ -29,10 +33,13 @@ def main():
     parser = argparse.ArgumentParser(description="Let the LLM judge label retrieved chunks as relevant or not.")
     parser.add_argument("--sample", action="store_true", help="only the chunks you labelled by hand (annotations/key.csv)")
     parser.add_argument("--limit", type=int, help="only the first N pairs, for testing")
+    parser.add_argument("--batch", action="store_true", help="use the Message Batches API (Anthropic only, half price)")
     args = parser.parse_args()
 
     config = load_config()
     settings = config["judge"]
+    if args.batch and settings["provider"] != "anthropic":
+        raise SystemExit("--batch only works with provider: anthropic")
     questions = pd.read_parquet(get_path(config, "data_processed") / "questions.parquet").set_index("qid", drop=False)
     if args.sample:
         pairs = pd.read_csv(get_path(config, "annotations") / "key.csv")[["qid", "chunk_id"]]
@@ -49,7 +56,10 @@ def main():
     write_meta(path, config, provider=settings["provider"], model=settings["model"], effort=settings["effort"],
                judge_prompt=JUDGE_PROMPT, judge_schema=JUDGE_SCHEMA if settings["provider"] == "anthropic" else None)
     client = make_client(settings["provider"])
-    judge_many(client, settings, pairs, questions, chunk_texts, path)
+    if args.batch:
+        judge_batch(client, settings, pairs, questions, chunk_texts, path)
+    else:
+        judge_many(client, settings, pairs, questions, chunk_texts, path)
 
 
 if __name__ == "__main__":
