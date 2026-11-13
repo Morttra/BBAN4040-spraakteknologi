@@ -22,3 +22,9 @@ We should be aware that models can lean toward one letter. A test would be to ta
 When testing on a question with and without wrapping the prompt in accordance to how the models are instruction trained we say that with the wrapping the models were inclined to start the answer with "S", most likely as in "Svaret er...". After that we tried moving "Svar:" to the model response before testing both 12B models on a 50 question subset. This keeps the wording from NorEval. Changing the prompt more than this would mean deviating form NorEval's formatting.
 
 After further testing it was revealed that frasing the sentence "Bakgrunn fra Wikipedia:" before the chunks was enough to make the models refuse answering the questions if the answer weren't in the chunks. 
+
+# LLM judge trustworthiness consideration:
+Accuracy, nr of indices in agreement with human labels / number of indices total. Should be >95%
+
+
+# Retriever selection rules:

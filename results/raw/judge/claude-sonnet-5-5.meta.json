@@ -1,0 +1,119 @@
+{
+  "created": "2026-11-13T10:11:26",
+  "git_commit": "3fe165703b8deb0f9a6de8d0eaff522712c45212-dirty",
+  "python": "3.12.15",
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.19.0",
+    "sentence-transformers": "6.1.0",
+    "bm25s": "0.3.13",
+    "scikit-learn": "1.9.1",
+    "openai": "3.31.0",
+    "anthropic": "2.6.0",
+    "PyStemmer": "3.1.0"
+  },
+  "provider": "anthropic",
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "judge_prompt": "You decide whether an excerpt from Norwegian Wikipedia answers a quiz question.\n\nThe excerpt is relevant if it states the correct answer to this question, or lets you work it out with a simple step and no outside knowledge. Judge from the excerpt alone, not from what you know about the topic. The title on the first line of the excerpt is part of it.\n- The answer appears, but in another context: not relevant.\n- The answer needs a simple step, such as a birth year for a question about age: relevant.\n- The excerpt only rules out some of the options: not relevant.\n- The answer is written differently, such as an abbreviation or the full name: relevant.\n- The answer is only clear together with the title: relevant.\n\nQuestion: {question}\nOptions:\n{options}\nCorrect answer: {answer}\n\nExcerpt:\n{chunk}\n\nIs the excerpt relevant? Answer with one letter: Y or N.",
+  "judge_schema": {
+    "type": "object",
+    "properties": {
+      "relevant": {
+        "type": "string",
+        "enum": [
+          "Y",
+          "N"
+        ]
+      }
+    },
+    "required": [
+      "relevant"
+    ],
+    "additionalProperties": false
+  },
+  "config": {
+    "seed": 42,
+    "data": {
+      "languages": [
+        "nb"
+      ],
+      "nrk_quiz": "ltg/nrk_quiz_qa",
+      "nrk_quiz_revision": "v2.0",
+      "wikipedia_urls": {
+        "nb": "https://dumps.wikimedia.org/other/enterprise_html/runs/20250320/nowiki-NS0-20250320-ENTERPRISE-HTML.json.tar.gz"
+      }
+    },
+    "chunking": {
+      "max_words": 100,
+      "overlap_words": 20,
+      "add_title": true
+    },
+    "retrieval": {
+      "query_mode": "full",
+      "top_n": 20,
+      "retrievers": [
+        "bm25",
+        "dense"
+      ],
+      "bm25_k1": 1.5,
+      "bm25_b": 0.75,
+      "dense_model": "NbAiLab/nb-sbert-v2-base",
+      "dense_batch_size": 16
+    },
+    "qa": {
+      "k": 5,
+      "scoring": "option_letter",
+      "prompt_template": "noreval_p3",
+      "chat_template": true,
+      "models": {
+        "gemma-12b": {
+          "id": "google/gemma-3-12b-it",
+          "revision": "96b6f1eccf38110c56df3a15bffe176da04bfd80"
+        },
+        "borealis-12b": {
+          "id": "NbAiLab/borealis-12b",
+          "revision": "4c935c063adebe914df662c6ce22c1cb5de1a9fe"
+        }
+      }
+    },
+    "annotation": {
+      "n_questions": 50,
+      "seed": 2026,
+      "pool_k": 5,
+      "annotators": [
+        "m",
+        "n"
+      ]
+    },
+    "judge": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "effort": "high"
+    },
+    "demo": {
+      "n_questions": 20,
+      "retriever": "bm25",
+      "models": {
+        "gemma": {
+          "id": "google/gemma-3-270m-it",
+          "revision": "ac82b4e820549b854eebf28ce6dedaf9fdfa17b3"
+        },
+        "borealis": {
+          "id": "NbAiLab/borealis-270m",
+          "revision": "3d89ebd0b86906bfe669591e29beaf000476a8b7"
+        }
+      }
+    },
+    "paths": {
+      "data_raw": "data/raw",
+      "data_processed": "data/processed",
+      "indexes": "data/indexes",
+      "results_raw": "results/raw",
+      "tables": "results/tables",
+      "figures": "results/figures",
+      "annotations": "annotations",
+      "demo_data": "demo/data"
+    }
+  }
+}

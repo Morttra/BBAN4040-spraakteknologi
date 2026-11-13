@@ -18,7 +18,7 @@ import pandas as pd
 from norrag.config import PROJECT_ROOT
 
 # Packages whose versions can change results; their versions are saved in every .meta.json
-KEY_PACKAGES = ["torch", "transformers", "sentence-transformers", "bm25s", "scikit-learn", "openai", "PyStemmer"]
+KEY_PACKAGES = ["torch", "transformers", "sentence-transformers", "bm25s", "scikit-learn", "openai", "anthropic", "PyStemmer"]
 
 
 def write_jsonl(path, rows, append=False):

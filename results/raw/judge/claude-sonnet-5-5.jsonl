@@ -1,0 +1,5 @@
+{"qid": "1.13813755-10", "chunk_id": "nb-1537079-0002", "model": "claude-sonnet-5-5", "reply": "{\"relevant\":\"N\"}", "label": 0, "input_tokens": 860, "output_tokens": 11}
+{"qid": "1.13813755-10", "chunk_id": "nb-2204123-0005", "model": "claude-sonnet-5-5", "reply": "{\"relevant\":\"N\"}", "label": 0, "input_tokens": 928, "output_tokens": 11}
+{"qid": "1.13813755-10", "chunk_id": "nb-1537079-0001", "model": "claude-sonnet-5-5", "reply": "{\"relevant\":\"Y\"}", "label": 1, "input_tokens": 950, "output_tokens": 12}
+{"qid": "1.13813755-10", "chunk_id": "nb-135120-0001", "model": "claude-sonnet-5-5", "reply": "{\"relevant\":\"N\"}", "label": 0, "input_tokens": 882, "output_tokens": 11}
+{"qid": "1.13813755-10", "chunk_id": "nb-198508-0003", "model": "claude-sonnet-5-5", "reply": "{\"relevant\":\"N\"}", "label": 0, "input_tokens": 1009, "output_tokens": 11}

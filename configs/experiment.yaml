@@ -47,6 +47,7 @@ judge:
   provider: anthropic      # anthropic or openai; the key goes in .env (ANTHROPIC_API_KEY or OPENAI_API_KEY)
   model: claude-sonnet-5-5 # not a Gemma model, so it does not judge its own family; chosen 2026-11-07
                            # (no temperature setting: newer models reject it; every reply is logged instead)
+  effort: high             # Anthropic only; Sonnet 5.5's default, written out so it cannot change unnoticed
 
 demo:
   n_questions: 20
