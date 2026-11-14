@@ -1,0 +1,108 @@
+{
+  "created": "2026-11-14T10:12:12",
+  "git_commit": "041807db194a96209a6b0245e29a7a2f8495487d-dirty",
+  "python": "3.12.15",
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.19.0",
+    "sentence-transformers": "6.1.0",
+    "bm25s": "0.3.13",
+    "scikit-learn": "1.9.1",
+    "openai": "3.31.0",
+    "anthropic": "2.6.0",
+    "PyStemmer": "3.1.0"
+  },
+  "n_questions": 100,
+  "n_retrieved_chunks": 1988,
+  "n_other_chunks": 5000,
+  "results_12b": [
+    "borealis-12b__no_rag",
+    "gemma-12b__no_rag",
+    "gemma-12b__rag_bm25"
+  ],
+  "config": {
+    "seed": 42,
+    "data": {
+      "languages": [
+        "nb"
+      ],
+      "nrk_quiz": "ltg/nrk_quiz_qa",
+      "nrk_quiz_revision": "v2.0",
+      "wikipedia_urls": {
+        "nb": "https://dumps.wikimedia.org/other/enterprise_html/runs/20250320/nowiki-NS0-20250320-ENTERPRISE-HTML.json.tar.gz"
+      }
+    },
+    "chunking": {
+      "max_words": 100,
+      "overlap_words": 20,
+      "add_title": true
+    },
+    "retrieval": {
+      "query_mode": "full",
+      "top_n": 20,
+      "retrievers": [
+        "bm25",
+        "dense"
+      ],
+      "bm25_k1": 1.5,
+      "bm25_b": 0.75,
+      "dense_model": "NbAiLab/nb-sbert-v2-base",
+      "dense_batch_size": 16
+    },
+    "qa": {
+      "k": 5,
+      "scoring": "option_letter",
+      "prompt_template": "noreval_p3",
+      "chat_template": true,
+      "models": {
+        "gemma-12b": {
+          "id": "google/gemma-3-12b-it",
+          "revision": "96b6f1eccf38110c56df3a15bffe176da04bfd80"
+        },
+        "borealis-12b": {
+          "id": "NbAiLab/borealis-12b",
+          "revision": "4c935c063adebe914df662c6ce22c1cb5de1a9fe"
+        }
+      }
+    },
+    "annotation": {
+      "n_questions": 50,
+      "seed": 2026,
+      "pool_k": 5,
+      "annotators": [
+        "m",
+        "n"
+      ]
+    },
+    "judge": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "effort": "high"
+    },
+    "demo": {
+      "n_questions": 100,
+      "n_other_chunks": 5000,
+      "retriever": "bm25",
+      "models": {
+        "gemma": {
+          "id": "google/gemma-3-270m-it",
+          "revision": "ac82b4e820549b854eebf28ce6dedaf9fdfa17b3"
+        },
+        "borealis": {
+          "id": "NbAiLab/borealis-270m",
+          "revision": "3d89ebd0b86906bfe669591e29beaf000476a8b7"
+        }
+      }
+    },
+    "paths": {
+      "data_raw": "data/raw",
+      "data_processed": "data/processed",
+      "indexes": "data/indexes",
+      "results_raw": "results/raw",
+      "tables": "results/tables",
+      "figures": "results/figures",
+      "annotations": "annotations",
+      "demo_data": "demo/data"
+    }
+  }
+}

@@ -50,7 +50,8 @@ judge:
   effort: high             # Anthropic only; Sonnet 5.5's default, written out so it cannot change unnoticed
 
 demo:
-  n_questions: 20
+  n_questions: 100         # random questions (seed above); 20 were too few for the 12B results to show the report's pattern
+  n_other_chunks: 5000     # random chunks besides those retrieved for the demo questions, so the search has a haystack
   retriever: bm25
   models:
     gemma:    {id: google/gemma-3-270m-it, revision: ac82b4e820549b854eebf28ce6dedaf9fdfa17b3}
