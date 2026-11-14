@@ -23,7 +23,7 @@ Every step reads files that an earlier step wrote and writes new files for the n
 | `notebooks/`, `demo/` | Looking at data and results, making tables and figures | Open in VS Code and run cell by cell |
 | `configs/experiment.yaml` | Every setting and choice, in one place | Change a value, then rerun the steps that depend on it |
 
-Why not do everything in notebooks? Some steps run for hours, and a script can be restarted where it stopped. Keeping the real work in `src/norrag/` also means the scripts, the demo and the tests all use exactly the same code.
+Why not do everything in notebooks? Some steps run for hours, and a script can be restarted where it stopped. Keeping the real work in `src/norrag/` also means the scripts, the notebooks and the demo all use exactly the same code.
 
 ## Each step: what it uses, reads and writes
 
@@ -40,7 +40,7 @@ Every file starts with a few lines saying what goes in it, so open the file to r
 | 6 | `06_run_judge.py` | `judge.py`, `records.py` | questions, chunks, run files, `key.csv` | `results/raw/judge/<judge model>.jsonl` |
 | – | You choose the retriever | | labels and judge results, in `00_main.ipynb` | |
 | 7 | `07_run_qa.py` | `models.py`, `pipeline.py` (which uses `prompts.py` and `scoring.py`), `records.py` | questions, chunks, run files | `results/raw/qa/<model>__<condition>.jsonl` |
-| 8 | `08_make_demo_data.py` | `retrieval/` | questions, chunks, BM25 run file | `demo/data/` |
+| 8 | `08_make_demo_data.py` | `records.py` | questions, chunks, BM25 run file, QA results | `demo/data/` |
 | – | `notebooks/00_main.ipynb` | `metrics.py`, `annotation.py`, `records.py` | everything in `results/raw/` and `annotations/` | `results/tables/`, `results/figures/` |
 
 The other two notebooks only look at data: `01_data-exploration.ipynb` reads `data/processed/`, and `02_error-analysis.ipynb` reads the results and chunks to show examples of mistakes.
@@ -67,13 +67,13 @@ Build a thin version of the whole chain first, on a few hundred questions and th
 The work splits into two tracks that you can do at the same time, one each, and then join.
 
 **Step 0: together, first session**
-1. Both of you: clone the repo, set up the environment (see the [Git cheatsheet](git-cheatsheet.md)) and check that `pip install -e ".[dev]"` works.
+1. Both of you: clone the repo, set up the environment (see the [Git cheatsheet](git-cheatsheet.md)) and check that `pip install -e .` works.
 2. Write `config.py` and `records.py`. They are small, and everything else needs them.
 
 **Track A: data and retrieval**
 1. `data/nrk_quiz.py` and `data/wikipedia.py`, then `01_prepare_data.py`. Look at the result in `01_data-exploration.ipynb`.
-2. `chunking.py` and `tests/test_chunking.py`, then `02_chunk_corpus.py`.
-3. `retrieval/text.py`, `retrieval/base.py`, `retrieval/bm25.py`, `retrieval/query.py` and `tests/test_retrieval.py`, then `03` and `04` for BM25 only.
+2. `chunking.py`, then `02_chunk_corpus.py`.
+3. `retrieval/text.py`, `retrieval/base.py`, `retrieval/bm25.py` and `retrieval/query.py`, then `03` and `04` for BM25 only.
 
 **Track B: models and scoring**
 1. `models.py`: load `google/gemma-3-270m-it` in a notebook and check that it runs. It is small and quick to download.
@@ -91,7 +91,7 @@ The work splits into two tracks that you can do at the same time, one each, and 
 4. Full `07` runs overnight: Borealis and Gemma without retrieval, then Gemma with the retriever chosen in the retrieval evaluation.
 
 **Final weeks (deadline 18 November)**
-1. Finish `metrics.py` and `tests/test_metrics.py`, so that `00_main.ipynb` produces every table and figure.
+1. Finish `metrics.py`, so that `00_main.ipynb` produces every table and figure.
 2. `02_error-analysis.ipynb` for the Discussion section.
 3. `08_make_demo_data.py` and `demo/demo.ipynb`; time the demo on a laptop.
 4. Fill in "Running the pipeline" and "Reproduction demo" in the README, and pin the package versions.
@@ -109,5 +109,4 @@ The work splits into two tracks that you can do at the same time, one each, and 
   ```
 
 - **Develop on small data.** Give every slow script a `--limit` option, so that `--limit 50` runs in seconds while you work on it.
-- **Run the tests** with `pytest` from the repo folder after changing something in `src/`.
 - **Seeing the flowchart in VS Code:** GitHub draws it automatically. VS Code's Markdown preview needs the extension "Markdown Preview Mermaid Support" first.

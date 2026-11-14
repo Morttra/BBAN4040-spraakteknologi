@@ -1,7 +1,7 @@
 """Run one experimental condition (model x retrieval setting) over a set of questions: retrieve, build the prompt, score the options and log the result.
 
 This is the heart of the project: scripts/07_run_qa.py calls it for the full runs and the demo calls
-it on 20 questions, so both run exactly the same method.
+it on 100 questions, so both run exactly the same method.
 
 What goes here:
 - run_condition(questions, model, tokenizer, model_name, condition, config, run=None, chunk_texts=None)

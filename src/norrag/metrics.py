@@ -20,7 +20,7 @@ What goes here:
 - Error breakdown: error_breakdown(qa, hits) counts each question as retrieval hit/miss x answer
   right/wrong, with the accuracy for hits and for misses.
 
-Used by: notebooks/00_main.ipynb, tests/test_metrics.py.
+Used by: notebooks/00_main.ipynb, notebooks/02_error-analysis.ipynb, demo/demo.ipynb.
 """
 
 import numpy as np

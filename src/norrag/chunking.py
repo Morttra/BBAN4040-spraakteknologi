@@ -12,7 +12,7 @@ What goes here:
 - chunk_corpus(articles, max_words, overlap_words, add_title) -> DataFrame: one row per chunk with
   chunk_id, article_id, language, title, position and text.
 
-Used by: scripts/02_chunk_corpus.py, scripts/08_make_demo_data.py, tests/test_chunking.py.
+Used by: scripts/02_chunk_corpus.py.
 Decisions (configs/experiment.yaml, `chunking`): chunk size, overlap, and whether each chunk starts
 with the article title.
 """

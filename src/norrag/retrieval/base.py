@@ -11,8 +11,7 @@ What goes here:
 - get_retriever(name, config): a new, empty retriever of the right kind, "bm25" or "dense".
 - index_dir(config, name) -> Path: where that retriever's index is saved, e.g. data/indexes/bm25/.
 
-Used by: scripts/03_build_indexes.py, scripts/04_retrieve.py, scripts/08_make_demo_data.py, the demo,
-tests/test_retrieval.py.
+Used by: scripts/03_build_indexes.py, scripts/04_retrieve.py, demo/demo.ipynb.
 """
 
 from norrag.config import get_path

@@ -1,6 +1,6 @@
 """Copy a small subset of questions and chunks into demo/data/ for the reproduction demo.
 
-The demo must run in about ten minutes on an ordinary laptop, so it gets about 20 questions and only
+The demo must run in minutes on an ordinary laptop, so it gets 100 questions (demo.n_questions) and only
 the chunks it needs: the top chunks the retriever found for each demo question on the full collection,
 plus a random sample of others, so that the search still has something to search through. The demo
 builds its own BM25 index from these chunks (about a second), so no index is stored. The report's

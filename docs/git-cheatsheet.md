@@ -48,7 +48,7 @@ Your partner has the same setup on their own Mac, and GitHub is the only place y
    ```bash
    python3.12 -m venv .venv
    source .venv/bin/activate
-   pip install -e ".[dev]"
+   pip install -e .
    cp .env.example .env      # then put your own keys in .env
    ```
 
