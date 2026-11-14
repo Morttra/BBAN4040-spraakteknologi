@@ -1,0 +1,11 @@
+,value
+articles,644575
+words in total,156067049
+"words per article, median",118.0
+articles under 100 words,43.7%
+articles under 200 words,69.2%
+chunks,2509750
+"words per chunk, median",84.0
+"words per chunk, mean",77.0
+"chunks per article, median",2.0
+"chunks per article, max",891
