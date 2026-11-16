@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prosjektflyt: finjustering eller søk?</title>
+<style>
+body{margin:0}
+.stage:focus{outline: none}
+a{color:#1E4FBF}a:hover{color:#163A8C}
+button{font: inherit; cursor: pointer}
+button:focus-visible{outline: 3px solid #F2A65A; outline-offset: 2px}
+@keyframes riseA{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes riseB{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes landA{0%{transform:scale(0.96);opacity:0.2}60%{transform:scale(1.02);opacity:1}100%{transform:none;opacity:1}}
+@keyframes landB{0%{transform:scale(0.96);opacity:0.2}60%{transform:scale(1.02);opacity:1}100%{transform:none;opacity:1}}
+@keyframes flowv{from{background-position:0 0}to{background-position:0 16px}}
+.run-a .rise{animation: riseA 0.5s ease-out both}
+.run-b .rise{animation: riseB 0.5s ease-out both}
+.d1{animation-delay: 0.1s !important}
+.d2{animation-delay: 0.45s !important}
+.d3{animation-delay: 0.8s !important}
+.d4{animation-delay: 1.15s !important}
+.d5{animation-delay: 1.6s !important}
+.vtrack{background-image: repeating-linear-gradient(180deg, #1E4FBF 0 8px, transparent 8px 16px); background-size: 3px 16px; background-repeat: repeat-y; background-position: 0 0; animation: flowv 0.5s linear infinite}
+.step{background: #1A2130; color: #A9B4C6; border: 1px solid #2B3548}
+.step.is-done{background: #1A2130; color: #F6F7F9; border-color: #6E7C94}
+.step.is-now{background: #F6F7F9; color: #10151F; border-color: #F6F7F9}
+.frow{border: 1px dashed #C3C9D4; background: #FFFFFF; color: #5B6472}
+.frow .tag{color: #5B6472}
+.frow.f-have{border: 1px solid #AEB6C4; color: #14181F}
+.frow.f-read{border: 2px solid #1E4FBF; background: #EAF0FD; color: #14181F}
+.frow.f-read .tag{color: #1E4FBF; font-weight: 600}
+.frow.f-write{border: 2px solid #1E4FBF; background: #1E4FBF; color: #FFFFFF}
+.frow.f-write .tag{color: #FFFFFF; font-weight: 600}
+.frow.f-write .fdesc{color: #DCE7FB}
+.run-a .frow.f-write{animation: landA 0.6s ease-out 1.5s both}
+.run-b .frow.f-write{animation: landB 0.6s ease-out 1.5s both}
+@media (prefers-reduced-motion: reduce){
+.rise,.vtrack,.frow{animation: none !important}
+}
+</style>
+</head>
+<body>
+<div id="stage" class="stage run-a" style="font-family: Arial, Helvetica, sans-serif; color: #14181F; background: #F6F7F9; font-size: 16px; line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column">
+
+<header style="background: #10151F; color: #F6F7F9; padding: 28px 4% 24px; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A9B4C6">BBAN4040 Språkteknologi · Prosjektflyt</div>
+<h1 style="margin: 0; font-weight: 700; font-size: 34px; line-height: 1.1; letter-spacing: -0.01em">Fra rådata til quizresultat, steg for steg</h1>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<span style="font-size: 15px; color: #A9B4C6; margin-right: 6px">Steg <span data-t="counter"></span>&nbsp;<br></span>
+<button type="button" id="prev" style="min-height: 44px; padding: 0 18px; border-radius: 4px; border: 1px solid #6E7C94; background: transparent; color: #F6F7F9; font-weight: 600">Forrige</button>
+<button type="button" id="next" style="min-height: 44px; padding: 0 18px; border-radius: 4px; border: 1px solid #6E7C94; background: transparent; color: #F6F7F9; font-weight: 600">Neste</button>
+</div>
+</div>
+<nav aria-label="Stegene i prosjektet" style="display: flex; flex-wrap: wrap; gap: 8px">
+<div data-for="steps" style="display: contents"></div>
+</nav>
+</header>
+
+<main style="flex: 1; padding: 28px 4% 36px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(480px, 100%), 1fr)); gap: 24px; align-items: start">
+
+<section aria-live="polite" style="background: #FFFFFF; border: 1px solid #DCE0E7; border-radius: 6px; padding: 32px; display: flex; flex-direction: column; gap: 22px">
+<div class="rise d1" style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5362"><span data-t="phase"></span></div>
+<div class="mono" style="font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 15px; font-weight: 500; color: #1E4FBF"><span data-t="file"></span></div>
+<h2 style="margin: 0; font-weight: 700; font-size: 34px; line-height: 1.12; letter-spacing: -0.01em; text-wrap: balance"><span data-t="title"></span></h2>
+</div>
+<p class="rise d2" style="margin: 0; font-size: 18px; line-height: 1.55; color: #2D3542; text-wrap: pretty"><span data-t="text"></span></p>
+
+<div data-if="isStep" style="display: contents">
+<div style="display: flex; flex-direction: column; gap: 10px; background: #F6F7F9; border: 1px solid #DCE0E7; border-radius: 6px; padding: 20px">
+<div class="rise d3" style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #4A5362">Leser</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px">
+<div data-for="reads" style="display: contents"></div>
+</div>
+</div>
+<div class="rise d3" aria-hidden="true" style="display: flex; flex-direction: column; align-items: center; width: 12px; align-self: center"><div class="vtrack" style="width: 3px; height: 26px"></div><svg width="12" height="8" viewBox="0 0 12 8" aria-hidden="true"><path d="M0 0 L12 0 L6 8 Z" fill="#1E4FBF"></path></svg></div>
+<div class="rise d4" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; background: #10151F; color: #F6F7F9; border-radius: 4px; padding: 14px 16px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #A9B4C6"><span data-t="actorKind"></span></div>
+<div style="font-weight: 700; font-size: 17px"><span data-t="actor"></span></div>
+</div>
+<div class="rise d4" aria-hidden="true" style="display: flex; flex-direction: column; align-items: center; width: 12px; align-self: center"><div class="vtrack" style="width: 3px; height: 26px"></div><svg width="12" height="8" viewBox="0 0 12 8" aria-hidden="true"><path d="M0 0 L12 0 L6 8 Z" fill="#1E4FBF"></path></svg></div>
+<div class="rise d5" style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #4A5362">Skriver</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px">
+<div data-for="writes" style="display: contents"></div>
+</div>
+</div>
+</div>
+</div>
+
+<div data-if="hasUses" style="display: contents">
+<div class="rise d5" style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #4A5362">Bruker fra src/norrag/</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 10px 20px">
+<div data-for="uses" style="display: contents"></div>
+</div>
+</div>
+</div>
+
+<div data-if="isIntro" style="display: contents">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 12px">
+<div class="rise d3" style="background: #F6F7F9; border: 1px solid #DCE0E7; border-top: 4px solid #E8891C; border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #9A3F06">Finjustering</div>
+<div style="font-weight: 700; font-size: 18px">Borealis 12B</div>
+<div style="font-size: 15px; color: #4A5362">Gemma 3 finjustert på norske instruksjoner. Svarer uten søk.</div>
+</div>
+<div class="rise d4" style="background: #F6F7F9; border: 1px solid #DCE0E7; border-top: 4px solid #1E4FBF; border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #1E4FBF">Søk (RAG)</div>
+<div style="font-weight: 700; font-size: 18px">Gemma 3 12B + BM25</div>
+<div style="font-size: 15px; color: #4A5362">Grunnmodellen får fem tekstbiter fra Wikipedia foran spørsmålet.</div>
+</div>
+<div class="rise d5" style="background: #F6F7F9; border: 1px solid #DCE0E7; border-top: 4px solid #7C8696; border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #4A5362">Referanse</div>
+<div style="font-weight: 700; font-size: 18px">Gemma 3 12B</div>
+<div style="font-size: 15px; color: #4A5362">Grunnmodellen uten finjustering og uten søk.</div>
+</div>
+</div>
+</div>
+
+<div data-if="isResult" style="display: contents">
+<div class="rise d3" style="display: flex; flex-direction: column; gap: 14px; background: #F6F7F9; border: 1px solid #DCE0E7; border-radius: 6px; padding: 20px">
+<div style="display: flex; flex-direction: column; gap: 5px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px"><span style="font-weight: 600">Søk: Gemma + BM25</span><b>68,3 %</b></div>
+<div style="position: relative; height: 22px; background: #E1E5EC; border-radius: 3px"><div style="width: 68.3%; height: 100%; background: #1E4FBF; border-radius: 3px"></div><div style="position: absolute; left: 28.3%; top: -3px; width: 2px; height: 28px; background: #14181F"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 5px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px"><span style="font-weight: 600">Finjustering: Borealis</span><b>57,6 %</b></div>
+<div style="position: relative; height: 22px; background: #E1E5EC; border-radius: 3px"><div style="width: 57.6%; height: 100%; background: #E8891C; border-radius: 3px"></div><div style="position: absolute; left: 28.3%; top: -3px; width: 2px; height: 28px; background: #14181F"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 5px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px"><span style="font-weight: 600">Referanse: Gemma</span><b>58,2 %</b></div>
+<div style="position: relative; height: 22px; background: #E1E5EC; border-radius: 3px"><div style="width: 58.2%; height: 100%; background: #7C8696; border-radius: 3px"></div><div style="position: absolute; left: 28.3%; top: -3px; width: 2px; height: 28px; background: #14181F"></div></div>
+</div>
+<div style="font-size: 14px; color: #4A5362">Andel riktige svar på 3 516 spørsmål. Den svarte streken viser ren gjetting, 28,3 %.</div>
+</div>
+</div>
+
+<div class="rise d5" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 20px">
+<div data-for="facts" style="display: contents"></div>
+</div>
+<div data-if="hasTime" style="display: contents">
+<div class="rise d5" style="font-size: 15px; color: #4A5362"><b style="color: #14181F">Tidsbruk:</b> <span data-t="time"></span></div>
+</div>
+</section>
+
+<section style="background: #FFFFFF; border: 1px solid #DCE0E7; border-radius: 6px; padding: 28px 32px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0; font-weight: 700; font-size: 22px">Filene i prosjektet</h2>
+<p style="margin: 0; font-size: 15px; color: #4A5362">Hvert steg leser det tidligere steg har skrevet, og legger noe nytt til.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div data-for="files" style="display: contents"></div>
+</div>
+</section>
+
+</main>
+</div>
+<script>
+(function () {
+const FILES = [
+{ id: 'nrk', name: 'NRK-Quiz-QA', desc: 'Hugging Face, versjon 2.0' },
+{ id: 'wiki', name: 'Bokmåls-Wikipedia', desc: 'HTML-dump fra 20. mars 2025, 6,2 GB' },
+{ id: 'questions', name: 'questions.parquet', desc: '3 516 quizspørsmål med svaralternativer' },
+{ id: 'articles', name: 'articles.parquet', desc: '644 575 artikler som ren tekst' },
+{ id: 'chunks', name: 'chunks.parquet', desc: '2,5 millioner tekstbiter' },
+{ id: 'idx', name: 'Søkeindekser', desc: 'BM25 og sentence-BERT' },
+{ id: 'runs', name: 'Søkeresultater', desc: 'topp 20 tekstbiter per spørsmål og søkemetode' },
+{ id: 'sheets', name: 'Blinde annoteringsark', desc: '469 rader, ett ark til hver av oss' },
+{ id: 'labels', name: 'Våre etiketter', desc: 'relevant eller ikke, for hver tekstbit' },
+{ id: 'judge', name: 'Dommerens etiketter', desc: 'samme vurdering for alle spørsmål' },
+{ id: 'choice', name: 'Valgt søkemetode', desc: 'BM25' },
+{ id: 'qa', name: 'QA-resultater', desc: 'ett svar per spørsmål for tre oppsett' },
+{ id: 'demo', name: 'demo/data', desc: '100 spørsmål og ca. 7 000 tekstbiter' },
+{ id: 'tables', name: 'Tabeller og figurer', desc: 'tallene i rapporten' }
+];
+const MODS = {
+'data/nrk_quiz.py': 'laster inn quizspørsmålene',
+'data/wikipedia.py': 'laster ned Wikipedia og renser HTML til tekst',
+'chunking.py': 'deler artikler i tekstbiter med faste ID-er',
+'retrieval/text.py': 'deler tekst i ord og kutter til ordstammen',
+'retrieval/bm25.py': 'BM25-indeks og -søk',
+'retrieval/dense.py': 'sentence-BERT-indeks og -søk',
+'retrieval/base.py': 'felles inngang til søkemetodene',
+'retrieval/query.py': 'gjør spørsmålet om til et søk',
+'annotation.py': 'trekker utvalget og lager de blinde arkene',
+'judge.py': 'ledetekst og kall til LLM-dommeren',
+'models.py': 'laster Gemma 3 og Borealis lokalt',
+'pipeline.py': 'kjører ett oppsett fra spørsmål til svar',
+'prompts.py': 'ledetekstmaler med og uten tekstbiter',
+'scoring.py': 'sannsynligheten for hver svarbokstav',
+'metrics.py': 'treffsikkerhet, hit@k, MRR@k, konfidensintervall, McNemar, kappa',
+'records.py': 'logger hver kjøring med innstillingene som ble brukt'
+};
+const P1 = 'Del 1 · Forberedelse';
+const P2 = 'Del 2 · Velg søkemetode';
+const P3 = 'Del 3 · Sammenlign modellene';
+const P4 = 'Etterarbeid';
+const STEPS = [
+{ kind: 'intro', num: 'Start', label: 'Intro', phase: 'Introduksjon', file: 'Finjustering mot søk (RAG)', actorKind: '', actor: '',
+title: 'Finjustering eller søk?',
+text: 'En språkmodell kan bli bedre på norske faktaspørsmål på to måter: den kan finjusteres på norsk, eller den kan få slå opp i en kilde før den svarer (RAG). Vi sammenligner de to på quizspørsmål fra NRK om norsk historie og kultur. De neste stegene viser hvordan forsøket er bygget opp, skript for skript.',
+reads: [], writes: [],
+facts: [['3 516', 'quizspørsmål som alle oppsettene svarer på'], ['8 skript', 'kjørt i rekkefølge, fra rådata til svar']],
+time: '' },
+{ num: '01', label: 'Data', phase: P1, file: 'scripts/01_prepare_data.py', uses: ['data/nrk_quiz.py', 'data/wikipedia.py'], actorKind: 'Skript', actor: '01_prepare_data.py',
+title: 'Hent og klargjør dataene',
+text: 'Skriptet laster ned quizspørsmålene fra NRK og hele Wikipedia på bokmål. Hver Wikipedia-side kommer som HTML og renses til ren tekst, slik at tall og faktabokser blir med, mens referanser og lenkelister kuttes.',
+reads: ['nrk', 'wiki'], writes: ['questions', 'articles'],
+facts: [['3 516', 'spørsmål på bokmål fra 413 quizer'], ['644 575', 'artikler, 156 millioner ord']],
+time: 'nedlasting pluss omtrent én time' },
+{ num: '02', label: 'Biter', phase: P1, file: 'scripts/02_chunk_corpus.py', uses: ['chunking.py', 'records.py'], actorKind: 'Skript', actor: '02_chunk_corpus.py',
+title: 'Del artiklene i tekstbiter',
+text: 'Modellen kan ikke få hele artikler i ledeteksten. Artiklene deles derfor i tekstbiter (chunks) på inntil 100 ord, med 20 ords overlapp mellom nabobiter og artikkeltittelen først i hver bit.',
+reads: ['articles'], writes: ['chunks'],
+facts: [['2,5 millioner', 'tekstbiter'], ['43,7 %', 'av artiklene er kortere enn 100 ord']],
+time: 'et par minutter' },
+{ num: '03', label: 'Indekser', phase: P1, file: 'scripts/03_build_indexes.py', uses: ['retrieval/base.py', 'retrieval/text.py', 'retrieval/bm25.py', 'retrieval/dense.py'], actorKind: 'Skript', actor: '03_build_indexes.py',
+title: 'Bygg to søkeindekser',
+text: 'For å finne riktige tekstbiter raskt bygges én indeks per søkemetode. BM25 søker på ord, etter at ordene er kuttet ned til stammen. Sentence-BERT gjør hver tekstbit om til en vektor og søker på betydning.',
+reads: ['chunks'], writes: ['idx'],
+facts: [['BM25', 'ordbasert søk med norsk stemming'], ['nb-sbert-v2-base', 'betydningsbasert søk']],
+time: 'BM25 noen minutter, sentence-BERT ca. 4 timer' },
+{ num: '04', label: 'Søk', phase: P2, file: 'scripts/04_retrieve.py', uses: ['retrieval/query.py', 'retrieval/base.py', 'records.py'], actorKind: 'Skript', actor: '04_retrieve.py',
+title: 'Søk opp tekstbiter til hvert spørsmål',
+text: 'Hvert spørsmål brukes som søk i begge indeksene. De 20 beste tekstbitene per spørsmål lagres i én fil per søkemetode, slik at alle senere steg bruker nøyaktig de samme treffene.',
+reads: ['questions', 'idx'], writes: ['runs'],
+facts: [['20', 'tekstbiter lagres per spørsmål'], ['5', 'av dem, de øverste, brukes videre']],
+time: '' },
+{ num: '05', label: 'Ark', phase: P2, file: 'scripts/05_make_annotation_sample.py', uses: ['annotation.py', 'records.py'], actorKind: 'Skript', actor: '05_make_annotation_sample.py',
+title: 'Lag blinde annoteringsark',
+text: 'Hvor gode er treffene? Skriptet trekker 50 spørsmål, slår sammen de fem beste tekstbitene fra hver søkemetode og stokker dem. Arkene viser ikke hvilken søkemetode som fant hva.',
+reads: ['questions', 'chunks', 'runs'], writes: ['sheets'],
+facts: [['50', 'tilfeldig trukne spørsmål'], ['469', 'par av spørsmål og tekstbit']],
+time: 'sekunder' },
+{ num: 'Manuelt', label: 'Merking', phase: P2, file: 'annotations/README.md', actorKind: 'Manuelt arbeid', actor: 'Vi to, hver for oss',
+title: 'Vi merker tekstbitene for hånd',
+text: 'Hver av oss vurderte alene om tekstbiten gir svaret på spørsmålet. Uenighet ble diskutert etterpå og avgjort i fellesskap. Disse etikettene er fasiten som LLM-dommeren måles mot.',
+reads: ['sheets'], writes: ['labels'],
+facts: [['467 av 469', 'like etiketter'], ['0,98', 'Cohens kappa mellom oss']],
+time: '2,5 til 4 timer per person' },
+{ num: '06', label: 'Dommer', phase: P2, file: 'scripts/06_run_judge.py', uses: ['judge.py', 'annotation.py', 'records.py'], actorKind: 'Skript', actor: '06_run_judge.py',
+title: 'La en LLM-dommer vurdere resten',
+text: 'Å merke alt for hånd er ikke mulig. Claude Sonnet får samme definisjon av «relevant» som vi brukte: først på de 469 håndmerkede tekstbitene som kontroll, deretter på de fem beste tekstbitene fra hver søkemetode for alle 3 516 spørsmål.',
+reads: ['questions', 'chunks', 'runs', 'sheets'], writes: ['judge'],
+facts: [['98,7 %', 'enig med våre etiketter (463 av 469)'], ['ca. 29 dollar', 'i API-kostnad til sammen']],
+time: '11 minutter, deretter under et døgn' },
+{ num: 'Manuelt', label: 'Valg', phase: P2, file: 'docs/decisions.md', actorKind: 'Regel skrevet på forhånd', actor: 'Vi velger søkemetode',
+title: 'BM25 velges som søkemetode',
+text: 'Regelen ble skrevet ned før tallene fantes. Søkemetoden som oftest har minst én relevant tekstbit blant de fem øverste (hit@5) vinner, så lenge forskjellen er statistisk sikker.',
+reads: ['runs', 'labels', 'judge'], writes: ['choice'],
+facts: [['36,7 % mot 35,0 %', 'hit@5 for BM25 og sentence-BERT'], ['p = 0,022', 'McNemars test']],
+time: '' },
+{ num: '07', label: 'Quiz', phase: P3, file: 'scripts/07_run_qa.py', uses: ['models.py', 'pipeline.py', 'prompts.py', 'scoring.py', 'records.py'], actorKind: 'Skript', actor: '07_run_qa.py',
+title: 'Modellene tar quizen',
+text: 'Hver modell får spørsmålet og svaralternativene. Vi leser av hvilken bokstav modellen mener er mest sannsynlig som neste tegn, så ingenting avhenger av hvordan den formulerer seg. Gemma med søk får i tillegg de fem beste tekstbitene fra BM25 foran spørsmålet.',
+reads: ['questions', 'chunks', 'runs', 'choice'], writes: ['qa'],
+facts: [['3 oppsett', 'Borealis alene, Gemma alene, Gemma + BM25'], ['10 548', 'svar til sammen']],
+time: 'ca. 45 minutter per oppsett uten søk, ca. 6 timer med' },
+{ num: '08', label: 'Demo', phase: P4, file: 'scripts/08_make_demo_data.py', uses: ['records.py'], actorKind: 'Skript', actor: '08_make_demo_data.py',
+title: 'Lag et lite datasett til demoen',
+text: 'For at andre skal kunne kjøre metoden på en vanlig laptop kopieres et lite utvalg til demo-mappen, der notatboken for demonstrasjonen også holder til. Demoen bruker samme kode som hovedforsøket, men med små modeller på 270 millioner parametere.',
+reads: ['questions', 'chunks', 'runs', 'qa'], writes: ['demo'],
+facts: [['100', 'spørsmål'], ['ca. 7 000', 'tekstbiter']],
+time: 'sekunder' },
+{ num: 'Notatbok', label: 'Analyse', phase: P4, file: 'notebooks/00_main.ipynb', uses: ['metrics.py', 'annotation.py', 'records.py'], actorKind: 'Notatbok', actor: '00_main.ipynb',
+title: 'Notatboken regner ut resultatene',
+text: 'Hovednotatboken leser alt som er lagret og regner ut tallene i rapporten: hvor enige vi og dommeren er, hvor ofte søket finner svaret, og hvor mange spørsmål hvert oppsett svarer riktig på.',
+reads: ['runs', 'labels', 'judge', 'qa'], writes: ['tables'],
+facts: [['95 %', 'konfidensintervall for hver andel (bootstrap)'], ['McNemar', 'test av hovedsammenligningen']],
+time: '' },
+{ kind: 'result', num: 'Slutt', label: 'Resultat', phase: 'Resultat', file: 'Finjustering mot søk (RAG)', actorKind: '', actor: '',
+title: 'Søk slår finjustering med 10,7 prosentpoeng',
+text: 'Gemma med søk svarer riktig på flere spørsmål enn den finjusterte Borealis, og forskjellen er statistisk sikker (McNemar, p < 0,001). Uten søk er de to modellene like gode. Men søket hjelper bare når det finner svaret, og det gjør det for 37 % av spørsmålene.',
+reads: [], writes: [],
+facts: [['97,4 %', 'riktig når søket fant en relevant tekstbit'], ['51,3 %', 'riktig når det ikke gjorde det'], ['0,6', 'prosentpoeng mellom Gemma og Borealis uten søk']],
+time: '' }
+];
+
+var TPL = {"steps": ["s", "<button type=\"button\" class=\"{{s.cls}}\" aria-current=\"{{s.current}}\" data-go=\"{{s.k}}\" style=\"flex: 1 1 80px; min-height: 56px; padding: 6px 8px; border-radius: 4px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 0; text-align: left\">\n<span style=\"font-size: 12px; font-weight: 600; letter-spacing: 0.04em\">{{s.num}}</span>\n<span style=\"font-size: 14px; font-weight: 700\">{{s.label}}</span>\n</button>"], "reads": ["r", "<div style=\"border: 2px solid #1E4FBF; background: #EAF0FD; border-radius: 4px; padding: 6px 10px; font-size: 14px; font-weight: 600\">{{r.name}}</div>"], "writes": ["w", "<div style=\"border: 2px solid #1E4FBF; background: #1E4FBF; color: #FFFFFF; border-radius: 4px; padding: 6px 10px; font-size: 14px; font-weight: 600\">{{w.name}}</div>"], "uses": ["u", "<div style=\"display: flex; flex-direction: column; gap: 1px\">\n<span class=\"mono\" style=\"font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 14px; font-weight: 500; color: #14181F\">{{u.name}}</span>\n<span style=\"font-size: 13px; color: #4A5362\">{{u.desc}}</span>\n</div>"], "facts": ["f", "<div style=\"display: flex; flex-direction: column; gap: 2px; border-top: 2px solid #14181F; padding-top: 12px\">\n<span style=\"font-weight: 700; font-size: 26px; line-height: 1.15\">{{f.big}}</span>\n<span style=\"font-size: 15px; color: #4A5362\">{{f.small}}</span>\n</div>"], "files": ["fl", "<div class=\"{{fl.cls}}\" style=\"border-radius: 4px; padding: 5px 12px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; column-gap: 12px\">\n<span style=\"display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px\"><span style=\"font-weight: 600; font-size: 15px\">{{fl.name}}</span><span class=\"fdesc\" style=\"font-size: 13px\">{{fl.desc}}</span></span>\n<span class=\"tag\" style=\"font-size: 13px\">{{fl.status}}</span>\n</div>"]};
+var i = 0, n = 0;
+var last = STEPS.length - 1;
+var stage = document.getElementById('stage');
+function esc(v) { return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function fill(name, items) {
+var as = TPL[name][0], tpl = TPL[name][1];
+var re = new RegExp('\\{\\{' + as + '\\.(\\w+)\\}\\}', 'g');
+var htmlText = items.map(function (it) { return tpl.replace(re, function (m, key) { return esc(it[key]); }); }).join('\n');
+document.querySelectorAll('[data-for="' + name + '"]').forEach(function (el) { el.innerHTML = htmlText; });
+}
+function render() {
+var step = STEPS[i];
+var byId = {};
+FILES.forEach(function (f) { byId[f.id] = f; });
+var madeAt = { nrk: -1, wiki: -1 };
+STEPS.forEach(function (s, k) { s.writes.forEach(function (id) { madeAt[id] = k; }); });
+var files = FILES.map(function (f) {
+var cls = 'frow', status = 'ikke laget ennå';
+if (step.writes.indexOf(f.id) >= 0) { cls = 'frow f-write'; status = 'skrives nå'; }
+else if (step.reads.indexOf(f.id) >= 0) { cls = 'frow f-read'; status = 'leses nå'; }
+else if (madeAt[f.id] < i) { cls = 'frow f-have'; status = madeAt[f.id] < 0 ? 'ekstern kilde' : 'finnes'; }
+return { name: f.name, desc: f.desc, cls: cls, status: status };
+});
+var vals = {
+counter: (i + 1) + ' av ' + STEPS.length, phase: step.phase, file: step.file, actorKind: step.actorKind,
+actor: step.actor, title: step.title, text: step.text, time: step.time
+};
+var flags = { isIntro: step.kind === 'intro', isResult: step.kind === 'result', isStep: step.kind !== 'intro' && step.kind !== 'result', hasTime: step.time !== '', hasUses: (step.uses || []).length > 0 };
+document.querySelectorAll('[data-t]').forEach(function (el) { el.textContent = vals[el.getAttribute('data-t')]; });
+document.querySelectorAll('[data-if]').forEach(function (el) { el.style.display = flags[el.getAttribute('data-if')] ? 'contents' : 'none'; });
+fill('steps', STEPS.map(function (s, k) { return { num: s.num, label: s.label, k: k, cls: 'step' + (k === i ? ' is-now' : (k < i ? ' is-done' : '')), current: k === i ? 'step' : 'false' }; }));
+fill('reads', step.reads.map(function (id) { return { name: byId[id].name }; }));
+fill('writes', step.writes.map(function (id) { return { name: byId[id].name }; }));
+fill('facts', step.facts.map(function (f) { return { big: f[0], small: f[1] }; }));
+fill('files', files);
+fill('uses', (step.uses || []).map(function (id) { return { name: id, desc: MODS[id] }; }));
+stage.className = 'stage ' + (n % 2 === 0 ? 'run-a' : 'run-b');
+}
+function goTo(to, refocus) {
+to = Math.max(0, Math.min(last, to));
+if (to === i) return;
+i = to; n += 1; render();
+if (refocus) { var b = document.querySelector('[data-go="' + i + '"]'); if (b) b.focus(); }
+}
+document.getElementById('prev').addEventListener('click', function () { goTo(i - 1); });
+document.getElementById('next').addEventListener('click', function () { goTo(i + 1); });
+stage.addEventListener('click', function (e) {
+var b = e.target.closest('[data-go]');
+if (b) goTo(Number(b.getAttribute('data-go')), true);
+});
+document.addEventListener('keydown', function (e) {
+if (e.altKey || e.ctrlKey || e.metaKey) return;
+if (e.key === 'ArrowRight') { e.preventDefault(); goTo(i + 1); }
+if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(i - 1); }
+});
+render();
+})();
+</script>
+</body>
+</html>
