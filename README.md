@@ -3,6 +3,8 @@ Course project in the course BBAN4040 Språkteknologi at NTNU Handelshøyskolen.
 
 We compare fine-tuning and retrieval as two ways of making a language model better at questions about Norwegian history and culture (the Bokmål part of NRK-Quiz-QA): Borealis 12B (Gemma 3 fine-tuned on Norwegian instructions) without retrieval against Gemma 3 12B with retrieval over Bokmål Wikipedia (RAG). Gemma 3 12B without retrieval is included as a reference.
 
+For a visual demonstration of the usage of files through script 01-08, visit https://morttra.github.io/BBAN4040-spraakteknologi/prosjektflyt.html
+
 ## Project structure
 
 ```
@@ -33,7 +35,7 @@ We compare fine-tuning and retrieval as two ways of making a language model bett
 ├── data/                        Downloaded and processed data (git-ignored)
 ├── annotations/                 Human relevance labels and guidelines (committed)
 ├── results/                     raw/ logs (git-ignored, except the judge's labels), tables/ and figures/ (committed)
-└── docs/                        Architecture guide, decision log, AI-use log and Git cheatsheet
+└── docs/                        Architecture guide, decision log, and Git cheatsheet
 ```
 
 ## How the pipeline fits together
